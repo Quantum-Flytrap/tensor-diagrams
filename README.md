@@ -1,4 +1,9 @@
-# TypeScript Boilerplate for 2021
+# Tensor diagrams D3.js
+
+By [Piotr Migdał](https://p.migdal.pl/) and [Claudia Zendejas-Morales](https://claudiazm.xyz/). Inspirations include http://tensornetwork.org/diagrams/.
+
+
+## TypeScript Boilerplate for 2021
 
 [![Build and test status](https://github.com/metachris/typescript-boilerplate/workflows/Lint%20and%20test/badge.svg)](https://github.com/metachris/micropython-ctl/actions?query=workflow%3A%22Build+and+test%22)
 

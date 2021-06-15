@@ -5,7 +5,7 @@
     "moduleResolution": "node",
     "declaration": true,
     "strict": true,
-    "noImplicitAny": true /* Raise error on expressions and declarations with an implied 'any' type. */,
+    "noImplicitAny": false /* Raise error on expressions and declarations with an implied 'any' type. */,
     "strictNullChecks": true /* Enable strict null checks. */,
     "strictFunctionTypes": true /* Enable strict checking of function types. */,
     "noUnusedLocals": true /* Report errors on unused locals. */,
@@ -19,6 +19,8 @@
     "experimentalDecorators": true,
     "sourceMap": true,
     "outDir": "./dist/tsc/",
+    "allowJs": true,
+    // "checkJs": false,
     "types": [
       "node",
       "jest"

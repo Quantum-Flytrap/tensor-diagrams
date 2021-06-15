@@ -1,9 +1,51 @@
 <html>
-  <head>
-    <script src="./dist/esbuild/browser.js"></script>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/typescript-boilerplate-2021"></script> -->
-  </head>
-  <body>
-    Open the devtools 👇
-  </body>
+
+<head>
+  <script src="./dist/esbuild/browser.js"></script>
+  <link rel='stylesheet' href='./src/diagram.css'>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/typescript-boilerplate-2021"></script> -->
+</head>
+
+<body>
+  <div class="equation">
+    <div id="firstcontainer" class="eq-diagram">
+    </div>
+    <div class="eq-elem"> = ∑_ij</div>
+    <div id="v_x" class="eq-elem">x_i</div>
+    <div id="M_A" class="eq-elem">A_ij</div>
+    <div id="M_B" class="eq-elem">B_jk</div>
+  </div>
+  <script>
+    const tensors = [
+      {
+        x: 0, y: 0, name: "x", idEqPart: "v_x",
+        indices: [
+          { pos: "right", name: "i" },
+        ]
+      },
+      {
+        x: 1, y: 0, name: "A", idEqPart: "M_A",
+        indices: [
+          { pos: "left", name: "i" },
+          { pos: "right", name: "j" }
+        ]
+      },
+      {
+        x: 2, y: 0, name: "B", idEqPart: "M_B",
+        indices: [
+          { pos: "left", name: "j" },
+          { pos: "right", name: "k" }
+        ]
+      },
+    ];
+
+    const contractions = [
+      { source: 0, target: 1, name: "i" },
+      { source: 1, target: 2, name: "j" },
+    ];
+
+    drawDiagram(tensors, contractions, null, "firstcontainer", 220, 120);
+  </script>
+</body>
+
 </html>
