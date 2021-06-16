@@ -1,6 +1,5 @@
 import * as d3 from 'd3';
 
-
 interface XY {
   x: number;
   y: number
@@ -347,12 +346,12 @@ export class TensorDiagram {
 * Determines the shape of the node (or tensor), appends it to the selected element (element of the svg figure),
 * this figure will be of the size specified for the particular tensor, remaining within the square box
 * of size d.size*d.size .
-* @param {Object} selected - represents the element within the svg figure to which the shape generated in this
+* @param selected - represents the element within the svg figure to which the shape generated in this
 *     function will be added.
-* @param {Object} d - tensor object, contains all the characteristics of the tensor to be drawn.
-* @param {xScale} xScale - callback that scales linearly on the x-axis.
-* @param {yScale} yScale - callback that scales linearly on the y-axis.
-* @returns {Object} - returns the generated shape so that it can be manipulated such as setting its fill color.
+* @param d - tensor object, contains all the characteristics of the tensor to be drawn.
+* @param xScale - callback that scales linearly on the x-axis.
+* @param yScale - callback that scales linearly on the y-axis.
+* @returns returns the generated shape so that it can be manipulated such as setting its fill color.
 */
 function drawShape(selected: d3.Selection<d3.EnterElement, Tensor, null, undefined>, d: Tensor, xScale: d3.ScaleLinear<number, number, never>, yScale: d3.ScaleLinear<number, number, never>): d3.Selection<any, Tensor, null, undefined> {
   // the figure goes inside a box with an area equal to size*size
@@ -382,7 +381,7 @@ function drawShape(selected: d3.Selection<d3.EnterElement, Tensor, null, undefin
 
   /**
    * Generates a circle shape.
-   * @returns {Object} - returns the generated circle shape.
+   * @returns returns the generated circle shape.
    */
   function drawCircle() {
     return selected
@@ -394,7 +393,7 @@ function drawShape(selected: d3.Selection<d3.EnterElement, Tensor, null, undefin
 
   /**
    * Generates an asterisk shape.
-   * @returns {Object} - returns the generated asterisk shape.
+   * @returns returns the generated asterisk shape.
    */
   function drawAsterisk() {
     return selected
@@ -415,7 +414,7 @@ function drawShape(selected: d3.Selection<d3.EnterElement, Tensor, null, undefin
 
   /**
    * Generates a square shape.
-   * @returns {Object} - returns the generated square shape.
+   * @returns returns the generated square shape.
    */
   function drawSquare() {
     return selected
@@ -428,7 +427,7 @@ function drawShape(selected: d3.Selection<d3.EnterElement, Tensor, null, undefin
 
   /**
    * Generates a triangle up-pointing shape.
-   * @returns {Object} - returns the generated triangle up-pointing shape.
+   * @returns returns the generated triangle up-pointing shape.
    */
   function drawTriangleUp() {
     return selected
@@ -445,7 +444,7 @@ function drawShape(selected: d3.Selection<d3.EnterElement, Tensor, null, undefin
 
   /**
    * Generates a triangle down-pointing shape.
-   * @returns {Object} - returns the generated triangle down-pointing shape.
+   * @returns returns the generated triangle down-pointing shape.
    */
   function drawTriangleDown() {
     return selected
@@ -462,7 +461,7 @@ function drawShape(selected: d3.Selection<d3.EnterElement, Tensor, null, undefin
 
   /**
    * Generates a triangle left-pointing shape.
-   * @returns {Object} - returns the generated triangle left-pointing shape.
+   * @returns returns the generated triangle left-pointing shape.
    */
   function drawTriangleLeft() {
     return selected
@@ -479,7 +478,7 @@ function drawShape(selected: d3.Selection<d3.EnterElement, Tensor, null, undefin
 
   /**
    * Generates a triangle right-pointing shape.
-   * @returns {Object} - returns the generated triangle right-pointing shape.
+   * @returns returns the generated triangle right-pointing shape.
    */
   function drawTriangleRight() {
     return selected
@@ -495,7 +494,7 @@ function drawShape(selected: d3.Selection<d3.EnterElement, Tensor, null, undefin
 
   /**
    * Generates a rectangle shape.
-   * @returns {Object} - returns the generated rectangle shape.
+   * @returns returns the generated rectangle shape.
    */
   function drawRectangle() {
     // the height of the rectangle will depend on the number of indices it has, either on the left or on the right
