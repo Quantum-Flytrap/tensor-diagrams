@@ -151,7 +151,9 @@ export class TensorDiagram {
     svg.selectAll<SVGGElement, ContractionRef[]>(".contraction") // lines and 'loops'
       .data(contractions)
       .enter()
-      .each(function (d, i) {
+      .append("path")
+      .attr("class", "contraction")
+      .attr("d", function (d, i) {
 
         already_drawn_contraction.push(d.name);
 
@@ -163,81 +165,73 @@ export class TensorDiagram {
             ).length;
         }
 
-        const source = {
-          x: d.source.x,
-          y: d.source.y + shift_y_per_contraction
-        };
-        const target = {
-          x: d.target.x,
-          y: d.target.y + shift_y_per_contraction
-        };
+        const source_pos = d.source.indices.filter((o) => o.name == d.name)[0].pos;
+        const target_pos = d.target.indices.filter((o) => o.name == d.name)[0].pos;
 
-        d3.select<SVGGElement, ContractionRef>(this)
-          .append("path")
-          .attr("class", "contraction")
-          .attr("d", function (d) {
+        if ((source_pos == "right" && target_pos == "left") ||
+          (source_pos == "down" && target_pos == "up")) {    // draw a straight line
+          const source = {
+            x: d.source.x,
+            y: d.source.y + shift_y_per_contraction
+          };
+          const target = {
+            x: d.target.x,
+            y: d.target.y + shift_y_per_contraction
+          };
+          return lineFunction([source, target]); //validate if there are nodes in between
 
-            const source_pos = d.source.indices.filter((o) => o.name == d.name)[0].pos;
-            const target_pos = d.target.indices.filter((o) => o.name == d.name)[0].pos;
-
-            if ((source_pos == "right" && target_pos == "left") ||
-              (source_pos == "down" && target_pos == "up")) {    // draw a straight line
-
-              return lineFunction([source, target]); //validate if there are nodes in between
-
-            } else {                                              // draw a curve line
+        } else {                                              // draw a curve line
 
 
-              let dir_x = 0;     // d.pos: "left", "right"
-              let dir_y = 0;     // d.pos: "up", "down"
-              let dir_x_out = 0; // source_pos = "right", "left"
-              let dir_x_in = 0;  // target_pos = "right", "left"
-              let dir_y_out = 0; // source_pos = "down", "up"
-              let dir_y_in = 0;  // target_pos = "down", "up
+          let dir_x = 0;     // d.pos: "left", "right"
+          let dir_y = 0;     // d.pos: "up", "down"
+          let dir_x_out = 0; // source_pos = "right", "left"
+          let dir_x_in = 0;  // target_pos = "right", "left"
+          let dir_y_out = 0; // source_pos = "down", "up"
+          let dir_y_in = 0;  // target_pos = "down", "up
 
 
-              const posDir = {
-                "up": () => dir_y = 1,
-                "down": () => dir_y = -1,
-                "left": () => dir_x = 1,
-                "right": () => dir_x = -1,
-                "default": () => { throw ".:. Position in loop contractions must be specified" }, //cannot continue
-              };
-              (posDir[d.pos] || posDir['default'])();
+          const posDir = {
+            "up": () => dir_y = 1,
+            "down": () => dir_y = -1,
+            "left": () => dir_x = 1,
+            "right": () => dir_x = -1,
+            "default": () => { throw ".:. Position in loop contractions must be specified" }, //cannot continue
+          };
+          (posDir[d.pos] || posDir['default'])();
 
-              const sourcePosDir = {
-                "right": () => dir_x_out = 1,
-                "left": () => dir_x_out = -1,
-                "down": () => dir_y_out = 1,
-                "up": () => dir_y_out = -1,
-                "default": () => { throw ".:. Position in source index must be specified" }, //cannot continue
-              };
-              (sourcePosDir[source_pos] || sourcePosDir['default'])();
+          const sourcePosDir = {
+            "right": () => dir_x_out = 1,
+            "left": () => dir_x_out = -1,
+            "down": () => dir_y_out = 1,
+            "up": () => dir_y_out = -1,
+            "default": () => { throw ".:. Position in source index must be specified" }, //cannot continue
+          };
+          (sourcePosDir[source_pos] || sourcePosDir['default'])();
 
-              const targetPosDir = {
-                "right": () => dir_x_in = 1,
-                "left": () => dir_x_in = -1,
-                "down": () => dir_y_in = 1,
-                "up": () => dir_y_in = -1,
-                "default": () => { throw ".:. Position in target index must be specified" }, //cannot continue
-              };
-              (targetPosDir[target_pos] || targetPosDir['default'])();
+          const targetPosDir = {
+            "right": () => dir_x_in = 1,
+            "left": () => dir_x_in = -1,
+            "down": () => dir_y_in = 1,
+            "up": () => dir_y_in = -1,
+            "default": () => { throw ".:. Position in target index must be specified" }, //cannot continue
+          };
+          (targetPosDir[target_pos] || targetPosDir['default'])();
 
 
-              return curveFunction([
-                [xScale(d.source.x), yScale(d.source.y)],
-                [xScale(d.source.x) + dir_x_out * 10, yScale(d.source.y) + dir_y_out * 10],
-                [xScale(d.source.x - dir_x * 0.2 + dir_x_out * 0.5) + dir_x_out * 10, yScale(d.source.y - dir_y * 0.2 + dir_y_out * 0.5) + dir_y_out * 10],
-                [xScale(d.source.x - dir_x * 1.05 + dir_x_out * 0.7), yScale(d.source.y - dir_y * 1.05 + dir_y_out * 0.7)],
-                [xScale(d.target.x - dir_x * 1.05 + dir_x_in * 0.7), yScale(d.target.y - dir_y * 1.05 + dir_y_in * 0.7)],
-                [xScale(d.target.x - dir_x * 0.2 + dir_x_in * 0.5) + dir_x_in * 10, yScale(d.target.y - dir_y * 0.2 + dir_y_in * 0.5) + dir_y_in * 10],
-                [xScale(d.target.x) + dir_x_in * 10, yScale(d.target.y) + dir_y_in * 10],
-                [xScale(d.target.x), yScale(d.target.y)]
-              ]);
+          return curveFunction([
+            [xScale(d.source.x), yScale(d.source.y)],
+            [xScale(d.source.x) + dir_x_out * 10, yScale(d.source.y) + dir_y_out * 10],
+            [xScale(d.source.x - dir_x * 0.2 + dir_x_out * 0.5) + dir_x_out * 10, yScale(d.source.y - dir_y * 0.2 + dir_y_out * 0.5) + dir_y_out * 10],
+            [xScale(d.source.x - dir_x * 1.05 + dir_x_out * 0.7), yScale(d.source.y - dir_y * 1.05 + dir_y_out * 0.7)],
+            [xScale(d.target.x - dir_x * 1.05 + dir_x_in * 0.7), yScale(d.target.y - dir_y * 1.05 + dir_y_in * 0.7)],
+            [xScale(d.target.x - dir_x * 0.2 + dir_x_in * 0.5) + dir_x_in * 10, yScale(d.target.y - dir_y * 0.2 + dir_y_in * 0.5) + dir_y_in * 10],
+            [xScale(d.target.x) + dir_x_in * 10, yScale(d.target.y) + dir_y_in * 10],
+            [xScale(d.target.x), yScale(d.target.y)]
+          ]);
 
-            }
+        }
 
-          });
       });
 
 
@@ -312,7 +306,7 @@ export class TensorDiagram {
           });
 
         // second draw nodes
-        const selected = d3.select<SVGGElement, Tensor>(this);
+        const selected = d3.select<d3.EnterElement, Tensor>(this);
         const shape = drawShape(selected, d, xScale, yScale);
         if (shape)
           shape.attr("class", "tensor")
@@ -360,7 +354,7 @@ export class TensorDiagram {
 * @param {yScale} yScale - callback that scales linearly on the y-axis.
 * @returns {Object} - returns the generated shape so that it can be manipulated such as setting its fill color.
 */
-function drawShape(selected, d, xScale, yScale) {
+function drawShape(selected: d3.Selection<d3.EnterElement, Tensor, null, undefined>, d: Tensor, xScale: d3.ScaleLinear<number, number, never>, yScale: d3.ScaleLinear<number, number, never>): d3.Selection<any, Tensor, null, undefined> {
   // the figure goes inside a box with an area equal to size*size
   // (in the case of the rectangle, its width is this size, but not its length)
   const size = d.size;
@@ -508,7 +502,7 @@ function drawShape(selected, d, xScale, yScale) {
     return selected
       .append("rect")
       .attr("width", size)
-      .attr("height", (d) => yScale(d.rectHeight - 2) + (radius * 1.5))
+      .attr("height", (d) => yScale(d.rectHeight! - 2) + (radius * 1.5))
       .attr("x", (d) => xScale(d.x) - radius)
       .attr("y", (d) => yScale(d.y) - radius)
       .attr("rx", diagonalRadius)
