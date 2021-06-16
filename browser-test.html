@@ -44,7 +44,8 @@
       { source: 1, target: 2, name: "j" },
     ];
 
-    drawDiagram(tensors, contractions, null, "firstcontainer", 220, 120);
+    const diagram = new TensorDiagram(tensors, contractions, []);
+    diagram.setSize(220, 120).draw("#firstcontainer")
   </script>
 </body>
 

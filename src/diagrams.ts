@@ -1,4 +1,4 @@
-import d3 from 'd3';
+import * as d3 from 'd3';
 
 
 interface XY {
@@ -240,7 +240,7 @@ export class TensorDiagram {
     svg.selectAll(".tensor")
       .data(tensors)
       .enter()
-      .each(function (d, i) {
+      .each(function (d, _i) {
 
         if (d.shape == "rectangle") {
           // determine the height (in positions) of this rectangular node
