@@ -11,3 +11,4 @@ coverage
 
 .yarnclean
 yarn.lock
+package-lock.json
