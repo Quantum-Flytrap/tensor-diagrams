@@ -1,13 +1,15 @@
 {
-  "name": "typescript-boilerplate-2021",
-  "version": "0.4.2",
-  "description": "Boilerplate for TypeScript projects (Node.js and browser modules)",
-  "author": "Chris Hager <chris@linuxuser.at>",
-  "repository": "https://github.com/metachris/typescript-boilerplate",
+  "name": "tensor-diagrams",
+  "version": "0.1.0",
+  "description": "Tensor diagrams in D3.js - visualize array operations",
+  "author": "Claudia Zendejas-Morales",
+  "repository": "https://github.com/Quantum-Game/tensor-diagrams",
   "license": "MIT",
   "keywords": [
     "typescript",
-    "boilerplate",
+    "d3",
+    "maths",
+    "data-viz",
     "esbuild"
   ],
   "main": "./dist/tsc/main.js",
