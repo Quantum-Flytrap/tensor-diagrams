@@ -23,7 +23,7 @@
     "docs": "typedoc --entryPoints src/main.ts",
     "build": "tsc -p tsconfig.json",
     "build-all": "yarn clean && yarn build && yarn esbuild-browser",
-    "esbuild-browser": "esbuild src/browser.ts --bundle --minify --sourcemap=external --outfile=dist/esbuild/tensor-diagrams.js",
+    "esbuild-browser": "esbuild src/browser.ts --bundle --external:d3 --minify --sourcemap=external --outfile=dist/esbuild/tensor-diagrams.js",
     "esbuild-browser:dev": "esbuild src/browser.ts --bundle --outfile=dist/esbuild/tensor-diagrams.js",
     "esbuild-browser:watch": "esbuild src/browser.ts --bundle --watch --outfile=dist/esbuild/tensor-diagrams.js"
   },
