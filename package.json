@@ -17,6 +17,7 @@
   "browser": "./dist/esbuild/tensor-diagrams.js",
   "scripts": {
     "lint": "eslint src/ --ext .js,.ts",
+    "lint-fix": "eslint --fix src/ --ext .js,.ts",
     "test": "jest",
     "clean": "rm -rf dist build package",
     "ts-node": "ts-node",
