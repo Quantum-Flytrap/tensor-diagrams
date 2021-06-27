@@ -22,7 +22,6 @@ export interface Tensor {
   y: number;
   name: string;
   shape: "circle" | "dot" | "asterisk" | "square" | "triangleUp" | "triangleDown" | "triangleLeft" | "triangleRight" | "rectangle",
-  idEqPart?: string;
   showLabel: boolean;
   labPos: Pos;
   color?: string;
@@ -204,14 +203,15 @@ export class TensorDiagram {
     const curveFunction = d3.line()
       .curve(d3.curveBundle);
 
+    const div = d3.select(container);
 
     // add same color to elements in formula as indicated w/idEqPart parameter
     tensors.forEach((d) => {
-      d3.selectAll('#' + d.idEqPart).style("color", colorScale(d.name));
+      div.selectAll(`.tensor-eq-${d.name}`).style("color", colorScale(d.name));
     });
 
     // drawing
-    const svg = d3.select(container)
+    const svg = div.select('.eq-diagram')
       .append("svg")
       .attr("width", this.width)
       .attr("height", this.height);
@@ -394,8 +394,8 @@ export class TensorDiagram {
               if (d.color) return d.color;
               return colorScale(d.name);
             })
-            .on("mouseover", (_event, d) => d3.selectAll('#' + d.idEqPart).classed('circle-sketch-highlight', true))
-            .on("mouseout", (_event, d) => d3.selectAll('#' + d.idEqPart).classed('circle-sketch-highlight', false));
+            .on("mouseover", (_event, d) => div.selectAll(`.tensor-eq-${d.name}`).classed('circle-sketch-highlight', true))
+            .on("mouseout", (_event, d) => div.selectAll(`.tensor-eq-${d.name}`).classed('circle-sketch-highlight', false));
 
         // third draw tensor names
         if (d.showLabel) {

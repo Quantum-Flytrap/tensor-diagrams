@@ -6,35 +6,35 @@
 </head>
 
 <body>
-  <div class="equation">
-    <div id="firstcontainer" class="eq-diagram">
+  <div id="firstcontainer" class="equation">
+    <div class="eq-diagram">
     </div>
     <div class="eq-elem"> = ∑_ij</div>
-    <div id="v_x" class="eq-elem">x_i</div>
-    <div id="M_A" class="eq-elem">A_ij</div>
-    <div id="M_B" class="eq-elem">B_jk</div>
+    <div class="eq-elem tensor-eq-x">x_i</div>
+    <div class="eq-elem tensor-eq-A">A_ij</div>
+    <div class="eq-elem tensor-eq-B">B_jk</div>
   </div>
-  <div class="equation">
-    <div id="simpler" class="eq-diagram">
+  <div id="simpler" class="equation">
+    <div class="eq-diagram">
     </div>
   </div>
   <script>
     const tensors = [
       {
-        x: 0, y: 0, name: "x", idEqPart: "v_x",
+        x: 0, y: 0, name: "x",
         indices: [
           { pos: "right", name: "i" },
         ]
       },
       {
-        x: 1, y: 0, name: "A", idEqPart: "M_A",
+        x: 1, y: 0, name: "A",
         indices: [
           { pos: "left", name: "i" },
           { pos: "right", name: "j" }
         ]
       },
       {
-        x: 2, y: 0, name: "B", idEqPart: "M_B",
+        x: 2, y: 0, name: "B",
         indices: [
           { pos: "left", name: "j" },
           { pos: "right", name: "k" }
