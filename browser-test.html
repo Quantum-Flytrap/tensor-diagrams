@@ -14,6 +14,10 @@
     <div id="M_A" class="eq-elem">A_ij</div>
     <div id="M_B" class="eq-elem">B_jk</div>
   </div>
+  <div class="equation">
+    <div id="simpler" class="eq-diagram">
+    </div>
+  </div>
   <script>
     const tensors = [
       {
@@ -44,7 +48,16 @@
     ];
 
     const diagram = new TensorDiagram(tensors, contractions, []);
-    diagram.setSize(220, 120).draw("#firstcontainer")
+    diagram.setSize(220, 120).draw("#firstcontainer");
+
+    TensorDiagram.new()
+      .addTensor("x", "start", [], ["i"])
+      .addTensor("A", "right", ["i"], ["j"])
+      .addTensor("B", "right", ["j"], ["k"])
+      .addContraction(0, 1, "i")
+      .addContraction(1, 2, "j")
+      .draw("#simpler");
+
   </script>
 </body>
 
