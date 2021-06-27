@@ -14,10 +14,8 @@
     <div class="eq-elem tensor-eq-A">A_ij</div>
     <div class="eq-elem tensor-eq-B">B_jk</div>
   </div>
-  <div id="simpler" class="equation">
-    <div class="eq-diagram">
-    </div>
-  </div>
+  <div id="simpler" class="equation"></div>
+  <div id="simpler-formula" class="equation"></div>
   <script>
     const tensors = [
       {
@@ -48,7 +46,7 @@
     ];
 
     const diagram = new TensorDiagram(tensors, contractions, []);
-    diagram.setSize(220, 120).draw("#firstcontainer");
+    diagram.setSize(220, 120).draw("#firstcontainer", false);
 
     TensorDiagram.new()
       .addTensor("x", "start", [], ["i"])
@@ -56,7 +54,22 @@
       .addTensor("B", "right", ["j"], ["k"])
       .addContraction(0, 1, "i")
       .addContraction(1, 2, "j")
+      .setSize(220, 120)
       .draw("#simpler");
+
+    TensorDiagram.new()
+      .addTensor("x", "start", [], ["i"])
+      .addTensor("A", "right", ["i"], ["j"])
+      .addTensor("B", "right", ["j"], ["k"])
+      .addContraction(0, 1, "i")
+      .addContraction(1, 2, "j")
+      .setSize(220, 120)
+      .draw("#simpler-formula", true, [
+        { name: "", label: "= ∑_ij" },
+        { name: "x", label: "x_i" },
+        { name: "A", label: "A_ij" },
+        { name: "B", label: "B_jk" },
+      ]);
 
   </script>
 </body>

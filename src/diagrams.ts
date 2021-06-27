@@ -170,7 +170,7 @@ export class TensorDiagram {
     return this;
   }
 
-  draw(container: string): void {
+  draw(container: string, createDiagramDiv = true, equationLabels: { name: string, label: string }[] = []): void {
     const tensors = this.tensors;
     const contractions = this.contractions;
     const lines = this.lines;
@@ -205,12 +205,24 @@ export class TensorDiagram {
 
     const div = d3.select(container);
 
+    // drawing
+    if (createDiagramDiv) {
+      div.append('div')
+        .attr("class", "eq-diagram");
+    }
+
+    div.selectAll(".eq-elem")
+      .data(equationLabels)
+      .enter()
+      .append("div")
+      .attr("class", (d) => `eq-elem tensor-eq-${d.name}`)
+      .html((d) => d.label);
+
     // add same color to elements in formula as indicated w/idEqPart parameter
     tensors.forEach((d) => {
       div.selectAll(`.tensor-eq-${d.name}`).style("color", colorScale(d.name));
     });
 
-    // drawing
     const svg = div.select('.eq-diagram')
       .append("svg")
       .attr("width", this.width)
