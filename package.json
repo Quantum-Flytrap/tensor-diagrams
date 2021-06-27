@@ -1,6 +1,6 @@
 {
   "name": "tensor-diagrams",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Tensor diagrams in D3.js - visualize array operations",
   "author": "Claudia Zendejas-Morales",
   "repository": "https://github.com/Quantum-Game/tensor-diagrams",

@@ -5,8 +5,10 @@ interface XY {
   y: number
 }
 
+type Pos = "left" | "right" | "up" | "down";
+
 export interface Indice {
-  pos: "left" | "right" | "up" | "down";
+  pos: Pos;
   name: string;
   showLabel: boolean;
   source?: XY;
@@ -20,10 +22,9 @@ export interface Tensor {
   y: number;
   name: string;
   shape: "circle" | "dot" | "asterisk" | "square" | "triangleUp" | "triangleDown" | "triangleLeft" | "triangleRight" | "rectangle",
-  idEqPart?: string;
   showLabel: boolean;
-  labPos: "left" | "right" | "up" | "down";
-  color: string;
+  labPos: Pos;
+  color?: string;
   size: number;
   indices: Indice[];
   rectHeight?: number;
@@ -33,14 +34,14 @@ export interface Contraction {
   source: number;
   target: number;
   name: string;
-  pos?: "left" | "right" | "up" | "down";
+  pos?: Pos;
 }
 
 export interface ContractionRef {
   source: Tensor;
   target: Tensor;
   name: string;
-  pos: "left" | "right" | "up" | "down";
+  pos: Pos;
 }
 
 export interface Line {
@@ -49,6 +50,8 @@ export interface Line {
   fx: number;
   fy: number;
 }
+
+export type RelPos = "start" | "right" | "down" | XY;
 
 export class TensorDiagram {
   tensors: Tensor[] = []
@@ -85,13 +88,89 @@ export class TensorDiagram {
     this.lines = lines;
   }
 
+  /**
+   * Create a new tensor diagram.
+   * @returns A bare tensor diagram.
+   */
+  static new(): TensorDiagram {
+    return new TensorDiagram([], [], []);
+  }
+
+  get lastTensor(): Tensor {
+    return this.tensors[this.tensors.length - 1]
+  }
+
+  /**
+   * A convenient chainable way of adding tensors.
+   * diagram.addTensor().addTensor("M", "right" ["i"], ["j"])
+   * @param name Tensor name.
+   * @param position Position { x, y } in integers, or "right"/"down" to add sequentially. 
+   * @param left Indice names for left.
+   * @param right Indice names for right.
+   * @param up Indice names for up.
+   * @param down Indice names for down.
+   * @returns An updated TensorDiagram, so it is chainable.
+   */
+  addTensor(name: string, position: RelPos, left: string[] = [], right: string[] = [], up: string[] = [], down: string[] = []): TensorDiagram {
+    let pos: XY = { x: 0, y: 0 };
+    switch (position) {
+      case "start":
+        break;
+      case "right":
+        pos = { x: this.lastTensor.x + 1, y: this.lastTensor.y }
+        break;
+      case "down":
+        pos = { x: this.lastTensor.x, y: this.lastTensor.y + 1 }
+        break;
+      default:
+        pos = position;
+    }
+    const inds1 = left.map((s): Indice => ({ name: s, pos: 'left', showLabel: true }));
+    const inds2 = right.map((s): Indice => ({ name: s, pos: 'right', showLabel: true }));
+    const inds3 = up.map((s): Indice => ({ name: s, pos: 'up', showLabel: true }));
+    const inds4 = down.map((s): Indice => ({ name: s, pos: 'down', showLabel: true }));
+    const tensor: Tensor = {
+      x: pos.x,
+      y: pos.y,
+      name: name,
+      shape: "circle",
+      showLabel: true,
+      labPos: "up",
+      size: 20,
+      indices: inds1.concat(inds2).concat(inds3).concat(inds4)
+    }
+    this.tensors.push(tensor);
+    return this;
+  }
+
+  /**
+   * A convenient chainable way of adding contractions.
+   * diagram.addContraction(0, 2, "j")
+   * @param i Source tensor id.
+   * @param j Targer tensor id.
+   * @param name Indice name.
+   * @param pos 
+   * @returns An updated TensorDiagram, so it is chainable.
+   * @todo Check if an indice exists in both tensors.
+   */
+  addContraction(i: number, j: number, name: string, pos: Pos = "up"): TensorDiagram {
+    const contraction: ContractionRef = {
+      source: this.tensors[i],
+      target: this.tensors[j],
+      name,
+      pos,
+    }
+    this.contractions.push(contraction);
+    return this;
+  }
+
   setSize(width: number, height: number): TensorDiagram {
     this.width = width;
     this.height = height;
     return this;
   }
 
-  draw(container: string): void {
+  draw(container: string, createDiagramDiv = true, equationLabels: { name: string, label: string }[] = []): void {
     const tensors = this.tensors;
     const contractions = this.contractions;
     const lines = this.lines;
@@ -124,14 +203,27 @@ export class TensorDiagram {
     const curveFunction = d3.line()
       .curve(d3.curveBundle);
 
+    const div = d3.select(container);
+
+    // drawing
+    if (createDiagramDiv) {
+      div.append('div')
+        .attr("class", "eq-diagram");
+    }
+
+    div.selectAll(".eq-elem")
+      .data(equationLabels)
+      .enter()
+      .append("div")
+      .attr("class", (d) => `eq-elem tensor-eq-${d.name}`)
+      .html((d) => d.label);
 
     // add same color to elements in formula as indicated w/idEqPart parameter
     tensors.forEach((d) => {
-      d3.selectAll('#' + d.idEqPart).style("color", colorScale(d.name));
+      div.selectAll(`.tensor-eq-${d.name}`).style("color", colorScale(d.name));
     });
 
-    // drawing
-    const svg = d3.select(container)
+    const svg = div.select('.eq-diagram')
       .append("svg")
       .attr("width", this.width)
       .attr("height", this.height);
@@ -314,8 +406,8 @@ export class TensorDiagram {
               if (d.color) return d.color;
               return colorScale(d.name);
             })
-            .on("mouseover", (_event, d) => d3.selectAll('#' + d.idEqPart).classed('circle-sketch-highlight', true))
-            .on("mouseout", (_event, d) => d3.selectAll('#' + d.idEqPart).classed('circle-sketch-highlight', false));
+            .on("mouseover", (_event, d) => div.selectAll(`.tensor-eq-${d.name}`).classed('circle-sketch-highlight', true))
+            .on("mouseout", (_event, d) => div.selectAll(`.tensor-eq-${d.name}`).classed('circle-sketch-highlight', false));
 
         // third draw tensor names
         if (d.showLabel) {
