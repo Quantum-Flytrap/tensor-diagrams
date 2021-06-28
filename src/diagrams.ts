@@ -8,6 +8,9 @@ interface XY {
 
 type Pos = 'left' | 'right' | 'up' | 'down';
 
+type Shape = 'circle' | 'dot' | 'asterisk' | 'square' | 'triangleUp'
+| 'triangleDown' | 'triangleLeft' | 'triangleRight' | 'rectangle';
+
 export interface Indice {
   pos: Pos;
   name: string;
@@ -22,8 +25,7 @@ export interface Tensor {
   x: number;
   y: number;
   name: string;
-  shape: 'circle' | 'dot' | 'asterisk' | 'square' | 'triangleUp'
-  | 'triangleDown' | 'triangleLeft' | 'triangleRight' | 'rectangle',
+  shape: Shape;
   showLabel: boolean;
   labPos: Pos;
   color?: string;
@@ -71,19 +73,6 @@ export class TensorDiagram {
   constructor(tensors: Tensor[], contractions: Contraction[], lines: Line[]) {
     this.tensors = tensors;
 
-    // setting defaults
-    this.tensors.forEach((t) => {
-      t.shape = t.shape || 'circle';
-      t.labPos = t.labPos || 'up';
-      t.size = t.size || 20;
-      t.showLabel = t.showLabel === undefined ? (!(t.shape === 'dot' || t.shape === 'asterisk')) : t.showLabel;
-
-      t.indices.forEach((i) => {
-        i.pos = i.pos || 'left';
-        i.showLabel = i.showLabel === undefined ? true : i.showLabel;
-      });
-    });
-
     // mapping contractions and setting defaults
     this.contractions = contractions.map(({
       source, target, name, pos,
@@ -103,6 +92,28 @@ export class TensorDiagram {
    */
   static new(): TensorDiagram {
     return new TensorDiagram([], [], []);
+  }
+
+  static createTensor(
+    x: number,
+    y: number,
+    name: string,
+    indices : Indice[] = [],
+    shape: Shape = 'circle',
+    showLabel = true,
+    labPos: Pos = 'up',
+    size = 20,
+  ): Tensor {
+    return {
+      x,
+      y,
+      name,
+      shape,
+      showLabel,
+      labPos,
+      size,
+      indices,
+    };
   }
 
   get lastTensor(): Tensor {
@@ -145,16 +156,17 @@ export class TensorDiagram {
     const inds2 = right.map((s): Indice => ({ name: s, pos: 'right', showLabel: true }));
     const inds3 = up.map((s): Indice => ({ name: s, pos: 'up', showLabel: true }));
     const inds4 = down.map((s): Indice => ({ name: s, pos: 'down', showLabel: true }));
-    const tensor: Tensor = {
-      x: pos.x,
-      y: pos.y,
-      name,
-      shape: 'circle',
-      showLabel: true,
-      labPos: 'up',
-      size: 20,
-      indices: inds1.concat(inds2).concat(inds3).concat(inds4),
-    };
+    const tensor = TensorDiagram.createTensor(pos.x, pos.y, name, inds1.concat(inds2).concat(inds3).concat(inds4));
+    // : Tensor = {
+    //   x: pos.x,
+    //   y: pos.y,
+    //   name,
+    //   shape: 'circle',
+    //   showLabel: true,
+    //   labPos: 'up',
+    //   size: 20,
+    //   indices: inds1.concat(inds2).concat(inds3).concat(inds4),
+    // };
     this.tensors.push(tensor);
     return this;
   }

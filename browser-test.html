@@ -18,26 +18,17 @@
   <div id="simpler-formula" class="equation"></div>
   <script>
     const tensors = [
-      {
-        x: 0, y: 0, name: "x",
-        indices: [
-          { pos: "right", name: "i" },
-        ]
-      },
-      {
-        x: 1, y: 0, name: "A",
-        indices: [
-          { pos: "left", name: "i" },
-          { pos: "right", name: "j" }
-        ]
-      },
-      {
-        x: 2, y: 0, name: "B",
-        indices: [
-          { pos: "left", name: "j" },
-          { pos: "right", name: "k" }
-        ]
-      },
+      TensorDiagram.createTensor(0, 0, "x", [
+        { pos: "right", name: "i", showLabel: true },
+      ]),
+      TensorDiagram.createTensor(1, 0, "A", [
+        { pos: "left", name: "i", showLabel: true },
+        { pos: "right", name: "j", showLabel: true }
+      ]),
+      TensorDiagram.createTensor(2, 0, "B", [
+        { pos: "left", name: "j", showLabel: true },
+        { pos: "right", name: "k", showLabel: true }
+      ]),
     ];
 
     const contractions = [
