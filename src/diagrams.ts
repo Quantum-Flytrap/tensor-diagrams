@@ -283,39 +283,27 @@ export class TensorDiagram {
           };
           return lineFunction([source, target]); // validate if there are nodes in between
         } // draw a curve line
-        let dirX = 0; // d.pos: "left", "right"
-        let dirY = 0; // d.pos: "up", "down"
-        let dirXOut = 0; // sourcePos = "right", "left"
-        let dirXIn = 0; // targetPos = "right", "left"
-        let dirYOut = 0; // sourcePos = "down", "up"
-        let dirYIn = 0; // targetPos = "down", "up
 
-        const posDir = {
-          up: () => dirY = 1,
-          down: () => dirY = -1,
-          left: () => dirX = 1,
-          right: () => dirX = -1,
-          default: () => { throw '.:. Position in loop contractions must be specified'; }, // cannot continue
-        };
-        (posDir[d.pos] || posDir.default)();
+        const { dirX, dirY } = {
+          up: { dirX: 0, dirY: 1 },
+          down: { dirX: 0, dirY: -1 },
+          left: { dirX: 1, dirY: 0 },
+          right: { dirX: -0, dirY: 0 },
+        }[d.pos];
 
-        const sourcePosDir = {
-          right: () => dirXOut = 1,
-          left: () => dirXOut = -1,
-          down: () => dirYOut = 1,
-          up: () => dirYOut = -1,
-          default: () => { throw '.:. Position in source index must be specified'; }, // cannot continue
-        };
-        (sourcePosDir[sourcePos] || sourcePosDir.default)();
+        const { dirXOut, dirYOut } = {
+          right: { dirXOut: 0, dirYOut: 1 },
+          left: { dirXOut: 0, dirYOut: -1 },
+          down: { dirXOut: 1, dirYOut: 0 },
+          up: { dirXOut: -0, dirYOut: 0 },
+        }[sourcePos];
 
-        const targetPosDir = {
-          right: () => dirXIn = 1,
-          left: () => dirXIn = -1,
-          down: () => dirYIn = 1,
-          up: () => dirYIn = -1,
-          default: () => { throw '.:. Position in target index must be specified'; }, // cannot continue
-        };
-        (targetPosDir[targetPos] || targetPosDir.default)();
+        const { dirXIn, dirYIn } = {
+          right: { dirXIn: 0, dirYIn: 1 },
+          left: { dirXIn: 0, dirYIn: -1 },
+          down: { dirXIn: 1, dirYIn: 0 },
+          up: { dirXIn: -0, dirYIn: 0 },
+        }[targetPos];
 
         return curveFunction([
           [xScale(d.source.x), yScale(d.source.y)],
