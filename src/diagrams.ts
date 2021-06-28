@@ -16,18 +16,24 @@ export interface Indice {
   labelPosition?: XY;
 }
 
-// Interface or class, depenging what we want to do with it
-export interface Tensor {
-  x: number;
-  y: number;
-  name: string;
-  shape: "circle" | "dot" | "asterisk" | "square" | "triangleUp" | "triangleDown" | "triangleLeft" | "triangleRight" | "rectangle",
-  showLabel: boolean;
-  labPos: Pos;
-  color?: string;
-  size: number;
-  indices: Indice[];
-  rectHeight?: number;
+// Interface or class, depending what we want to do with it
+export class Tensor {
+  x: number = 0;
+  y: number = 0;
+  name: string = "";
+  shape: "circle" | "dot" | "asterisk" | "square" | "triangleUp" | "triangleDown" | "triangleLeft" | "triangleRight" | "rectangle" = "circle";
+  showLabel: boolean = true;
+  labPos: Pos = "right";
+  color?: string = "";
+  size: number = 0;
+  indices: Indice[] = [];
+  rectHeight?: number = 0;
+
+  constructor(x: number, y: number, name: string) {
+    this.x = x;
+    this.y = y;
+    this.name = name;
+  }
 }
 
 export interface Contraction {
@@ -104,7 +110,7 @@ export class TensorDiagram {
    * A convenient chainable way of adding tensors.
    * diagram.addTensor().addTensor("M", "right" ["i"], ["j"])
    * @param name Tensor name.
-   * @param position Position { x, y } in integers, or "right"/"down" to add sequentially. 
+   * @param position Position { x, y } in integers, or "right"/"down" to add sequentially.
    * @param left Indice names for left.
    * @param right Indice names for right.
    * @param up Indice names for up.
@@ -149,7 +155,7 @@ export class TensorDiagram {
    * @param i Source tensor id.
    * @param j Targer tensor id.
    * @param name Indice name.
-   * @param pos 
+   * @param pos
    * @returns An updated TensorDiagram, so it is chainable.
    * @todo Check if an indice exists in both tensors.
    */
