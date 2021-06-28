@@ -15,9 +15,15 @@ export interface Indice {
   pos: Pos;
   name: string;
   showLabel: boolean;
-  source?: XY;
-  target?: XY;
-  labelPosition?: XY;
+}
+
+export interface IndiceDrawable {
+  pos: Pos;
+  name: string;
+  showLabel: boolean;
+  source: XY;
+  target: XY;
+  labelPosition: XY;
 }
 
 // Interface or class, depenging what we want to do with it
@@ -346,7 +352,7 @@ export class TensorDiagram {
         }
 
         // first draw pending indices (the ones that are not drawn before, not in alreadyDrawnContraction)
-        const indicesToDraw = d.indices
+        const indicesToDraw: IndiceDrawable[] = d.indices
           .filter((indice) => !alreadyDrawnContraction.includes(indice.name))
           .map((indice, j) => {
             let shiftYPerIndice = 0;
@@ -382,7 +388,8 @@ export class TensorDiagram {
               },
             };
           });
-        svg.selectAll<SVGGElement, Indice[]>(`#idx${d.name}`) // identify in a particular way the indices of this node
+        // identify in a particular way the indices of this node
+        svg.selectAll<SVGGElement, IndiceDrawable[]>(`#idx${d.name}`)
           .data(indicesToDraw)
           .enter()
           .each(function (idx) {
@@ -390,15 +397,15 @@ export class TensorDiagram {
             d3.select(this)
               .append('path')
               .attr('class', 'contraction')
-              .attr('d', lineFunction([idx.source!, idx.target!])!);
+              .attr('d', () => lineFunction([idx.source, idx.target]));
 
             // draw indices names
             if (idx.showLabel) {
               d3.select(this)
                 .append('text')
                 .attr('class', 'contraction-label')
-                .attr('x', xScale(idx.labelPosition!.x))
-                .attr('y', yScale(idx.labelPosition!.y))
+                .attr('x', xScale(idx.labelPosition.x))
+                .attr('y', yScale(idx.labelPosition.y))
                 .text(idx.name);
             }
           });
