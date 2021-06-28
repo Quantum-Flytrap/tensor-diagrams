@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-use-before-define */
 import * as d3 from 'd3';
 
 interface XY {
@@ -21,7 +22,8 @@ export interface Tensor {
   x: number;
   y: number;
   name: string;
-  shape: 'circle' | 'dot' | 'asterisk' | 'square' | 'triangleUp' | 'triangleDown' | 'triangleLeft' | 'triangleRight' | 'rectangle',
+  shape: 'circle' | 'dot' | 'asterisk' | 'square' | 'triangleUp'
+  | 'triangleDown' | 'triangleLeft' | 'triangleRight' | 'rectangle',
   showLabel: boolean;
   labPos: Pos;
   color?: string;
@@ -118,7 +120,14 @@ export class TensorDiagram {
    * @param down Indice names for down.
    * @returns An updated TensorDiagram, so it is chainable.
    */
-  addTensor(name: string, position: RelPos, left: string[] = [], right: string[] = [], up: string[] = [], down: string[] = []): TensorDiagram {
+  addTensor(
+    name: string,
+    position: RelPos,
+    left: string[] = [],
+    right: string[] = [],
+    up: string[] = [],
+    down: string[] = [],
+  ): TensorDiagram {
     let pos: XY = { x: 0, y: 0 };
     switch (position) {
       case 'start':
@@ -243,7 +252,7 @@ export class TensorDiagram {
 
     // draw contractions
 
-    const already_drawn_contraction: string[] = []; // remember indexes (indicated as contractions) already drawn
+    const alreadyDrawnContraction: string[] = []; // remember indexes (indicated as contractions) already drawn
 
     svg.selectAll<SVGGElement, ContractionRef[]>('.contraction') // lines and 'loops'
       .data(contractions)
@@ -251,71 +260,73 @@ export class TensorDiagram {
       .append('path')
       .attr('class', 'contraction')
       .attr('d', (d, i) => {
-        already_drawn_contraction.push(d.name);
+        alreadyDrawnContraction.push(d.name);
 
-        let shift_y_per_contraction = 0;
-        if (d.source.shape == 'rectangle') {
-          shift_y_per_contraction = contractions.slice(0, i)
-            .filter((o) => o.source.name == d.source.name && o.target.name == d.target.name).length;
+        let shiftYPerContraction = 0;
+        if (d.source.shape === 'rectangle') {
+          shiftYPerContraction = contractions.slice(0, i)
+            .filter((o) => o.source.name === d.source.name && o.target.name === d.target.name).length;
         }
 
-        const source_pos = d.source.indices.filter((o) => o.name == d.name)[0].pos;
-        const target_pos = d.target.indices.filter((o) => o.name == d.name)[0].pos;
+        const sourcePos = d.source.indices.filter((o) => o.name === d.name)[0].pos;
+        const targetPos = d.target.indices.filter((o) => o.name === d.name)[0].pos;
 
-        if ((source_pos == 'right' && target_pos == 'left')
-          || (source_pos == 'down' && target_pos == 'up')) { // draw a straight line
+        if ((sourcePos === 'right' && targetPos === 'left')
+          || (sourcePos === 'down' && targetPos === 'up')) { // draw a straight line
           const source = {
             x: d.source.x,
-            y: d.source.y + shift_y_per_contraction,
+            y: d.source.y + shiftYPerContraction,
           };
           const target = {
             x: d.target.x,
-            y: d.target.y + shift_y_per_contraction,
+            y: d.target.y + shiftYPerContraction,
           };
           return lineFunction([source, target]); // validate if there are nodes in between
         } // draw a curve line
-        let dir_x = 0; // d.pos: "left", "right"
-        let dir_y = 0; // d.pos: "up", "down"
-        let dir_x_out = 0; // source_pos = "right", "left"
-        let dir_x_in = 0; // target_pos = "right", "left"
-        let dir_y_out = 0; // source_pos = "down", "up"
-        let dir_y_in = 0; // target_pos = "down", "up
+        let dirX = 0; // d.pos: "left", "right"
+        let dirY = 0; // d.pos: "up", "down"
+        let dirXOut = 0; // sourcePos = "right", "left"
+        let dirXIn = 0; // targetPos = "right", "left"
+        let dirYOut = 0; // sourcePos = "down", "up"
+        let dirYIn = 0; // targetPos = "down", "up
 
         const posDir = {
-          up: () => dir_y = 1,
-          down: () => dir_y = -1,
-          left: () => dir_x = 1,
-          right: () => dir_x = -1,
+          up: () => dirY = 1,
+          down: () => dirY = -1,
+          left: () => dirX = 1,
+          right: () => dirX = -1,
           default: () => { throw '.:. Position in loop contractions must be specified'; }, // cannot continue
         };
         (posDir[d.pos] || posDir.default)();
 
         const sourcePosDir = {
-          right: () => dir_x_out = 1,
-          left: () => dir_x_out = -1,
-          down: () => dir_y_out = 1,
-          up: () => dir_y_out = -1,
+          right: () => dirXOut = 1,
+          left: () => dirXOut = -1,
+          down: () => dirYOut = 1,
+          up: () => dirYOut = -1,
           default: () => { throw '.:. Position in source index must be specified'; }, // cannot continue
         };
-        (sourcePosDir[source_pos] || sourcePosDir.default)();
+        (sourcePosDir[sourcePos] || sourcePosDir.default)();
 
         const targetPosDir = {
-          right: () => dir_x_in = 1,
-          left: () => dir_x_in = -1,
-          down: () => dir_y_in = 1,
-          up: () => dir_y_in = -1,
+          right: () => dirXIn = 1,
+          left: () => dirXIn = -1,
+          down: () => dirYIn = 1,
+          up: () => dirYIn = -1,
           default: () => { throw '.:. Position in target index must be specified'; }, // cannot continue
         };
-        (targetPosDir[target_pos] || targetPosDir.default)();
+        (targetPosDir[targetPos] || targetPosDir.default)();
 
         return curveFunction([
           [xScale(d.source.x), yScale(d.source.y)],
-          [xScale(d.source.x) + dir_x_out * 10, yScale(d.source.y) + dir_y_out * 10],
-          [xScale(d.source.x - dir_x * 0.2 + dir_x_out * 0.5) + dir_x_out * 10, yScale(d.source.y - dir_y * 0.2 + dir_y_out * 0.5) + dir_y_out * 10],
-          [xScale(d.source.x - dir_x * 1.05 + dir_x_out * 0.7), yScale(d.source.y - dir_y * 1.05 + dir_y_out * 0.7)],
-          [xScale(d.target.x - dir_x * 1.05 + dir_x_in * 0.7), yScale(d.target.y - dir_y * 1.05 + dir_y_in * 0.7)],
-          [xScale(d.target.x - dir_x * 0.2 + dir_x_in * 0.5) + dir_x_in * 10, yScale(d.target.y - dir_y * 0.2 + dir_y_in * 0.5) + dir_y_in * 10],
-          [xScale(d.target.x) + dir_x_in * 10, yScale(d.target.y) + dir_y_in * 10],
+          [xScale(d.source.x) + dirXOut * 10, yScale(d.source.y) + dirYOut * 10],
+          [xScale(d.source.x - dirX * 0.2 + dirXOut * 0.5) + dirXOut * 10,
+            yScale(d.source.y - dirY * 0.2 + dirYOut * 0.5) + dirYOut * 10],
+          [xScale(d.source.x - dirX * 1.05 + dirXOut * 0.7), yScale(d.source.y - dirY * 1.05 + dirYOut * 0.7)],
+          [xScale(d.target.x - dirX * 1.05 + dirXIn * 0.7), yScale(d.target.y - dirY * 1.05 + dirYIn * 0.7)],
+          [xScale(d.target.x - dirX * 0.2 + dirXIn * 0.5) + dirXIn * 10,
+            yScale(d.target.y - dirY * 0.2 + dirYIn * 0.5) + dirYIn * 10],
+          [xScale(d.target.x) + dirXIn * 10, yScale(d.target.y) + dirYIn * 10],
           [xScale(d.target.x), yScale(d.target.y)],
         ]);
       });
@@ -325,27 +336,27 @@ export class TensorDiagram {
     svg.selectAll('.tensor')
       .data(tensors)
       .enter()
-      .each(function (d, _i) {
-        if (d.shape == 'rectangle') {
+      .each(function (d) {
+        if (d.shape === 'rectangle') {
           // determine the height (in positions) of this rectangular node
-          d.rectHeight = Math.max(d.indices.filter((o) => o.pos == 'right').length,
-            d.indices.filter((o) => o.pos == 'left').length);
+          d.rectHeight = Math.max(d.indices.filter((o) => o.pos === 'right').length,
+            d.indices.filter((o) => o.pos === 'left').length);
         }
 
-        // first draw pending indices (the ones that are not drawn before, not in already_drawn_contraction)
+        // first draw pending indices (the ones that are not drawn before, not in alreadyDrawnContraction)
         const indicesToDraw: Indice[] = [];
         d.indices.forEach((index, j) => {
-          if (!already_drawn_contraction.includes(index.name)) {
-            let shift_y_per_index = 0;
-            let shift_y_rect_down = 0;
+          if (!alreadyDrawnContraction.includes(index.name)) {
+            let shiftYPerIndex = 0;
+            let shiftYRectDown = 0;
 
-            if (d.shape == 'rectangle') {
-              if (index.pos == 'right' || index.pos == 'left') {
+            if (d.shape === 'rectangle') {
+              if (index.pos === 'right' || index.pos === 'left') {
                 // check if there is more than one index either left or right
-                shift_y_per_index = d.indices.slice(0, j).filter((o) => o.pos == index.pos).length;
+                shiftYPerIndex = d.indices.slice(0, j).filter((o) => o.pos === index.pos).length;
               }
 
-              if (index.pos == 'down') { shift_y_rect_down = d.rectHeight! - 1; }
+              if (index.pos === 'down') { shiftYRectDown = d.rectHeight! - 1; }
             }
 
             // get how much an index should move to any cardinal point
@@ -353,15 +364,15 @@ export class TensorDiagram {
 
             index.source = {
               x: d.x,
-              y: d.y + shift_y_per_index,
+              y: d.y + shiftYPerIndex,
             };
             index.target = {
               x: d.x + dv[0],
-              y: d.y + dv[1] + shift_y_per_index + shift_y_rect_down,
+              y: d.y + dv[1] + shiftYPerIndex + shiftYRectDown,
             };
             index.labelPosition = {
               x: d.x + 1.4 * dv[0],
-              y: d.y + 1.4 * dv[1] + shift_y_per_index + shift_y_rect_down,
+              y: d.y + 1.4 * dv[1] + shiftYPerIndex + shiftYRectDown,
             };
             indicesToDraw.push(index);
           }
@@ -369,7 +380,7 @@ export class TensorDiagram {
         svg.selectAll<SVGGElement, Indice[]>(`#idx${d.name}`) // identify in a particular way the indices of this node
           .data(indicesToDraw)
           .enter()
-          .each(function (idx, _i) {
+          .each(function (idx) {
             // draw loose ends
             d3.select(this)
               .append('path')
@@ -392,33 +403,37 @@ export class TensorDiagram {
         const shape = drawShape(selected, d, xScale, yScale);
         if (shape) {
           shape.attr('class', 'tensor')
-            .style('fill', (d) => {
-              if (d.shape === 'dot') return 'black';
-              if (d.color) return d.color;
-              return colorScale(d.name);
+            .style('fill', (c) => {
+              if (c.shape === 'dot') return 'black';
+              if (c.color) return c.color;
+              return colorScale(c.name);
             })
-            .on('mouseover', (_event, d) => div.selectAll(`.tensor-eq-${d.name}`).classed('circle-sketch-highlight', true))
-            .on('mouseout', (_event, d) => div.selectAll(`.tensor-eq-${d.name}`).classed('circle-sketch-highlight', false));
+            .on('mouseover', (_event, c) => {
+              div.selectAll(`.tensor-eq-${c.name}`).classed('circle-sketch-highlight', true);
+            })
+            .on('mouseout', (_event, c) => {
+              div.selectAll(`.tensor-eq-${c.name}`).classed('circle-sketch-highlight', false);
+            });
         }
 
         // third draw tensor names
         if (d.showLabel) {
           selected.append('text')
             .attr('class', 'tensor-label')
-            .attr('x', (d) => {
+            .attr('x', (c) => {
               let shiftHor = 0;
-              if (d.labPos.startsWith('left')) shiftHor = -0.4;
-              if (d.labPos.startsWith('right')) shiftHor = 0.4;
-              return xScale(d.x + shiftHor);
+              if (c.labPos.startsWith('left')) shiftHor = -0.4;
+              if (c.labPos.startsWith('right')) shiftHor = 0.4;
+              return xScale(c.x + shiftHor);
             })
-            .attr('y', (d) => {
+            .attr('y', (c) => {
               let shiftVer = 0;
-              if (d.labPos.endsWith('up')) shiftVer = -0.4;
-              if (d.labPos.endsWith('down')) shiftVer = 0.6;
-              if (d.labPos == 'left' || d.labPos == 'right') shiftVer += 0.14;
-              return yScale(d.y + shiftVer);
+              if (c.labPos.endsWith('up')) shiftVer = -0.4;
+              if (c.labPos.endsWith('down')) shiftVer = 0.6;
+              if (c.labPos === 'left' || c.labPos === 'right') shiftVer += 0.14;
+              return yScale(c.y + shiftVer);
             })
-            .text((d) => d.name);
+            .text((c) => c.name);
         }
       });
   }
@@ -435,17 +450,22 @@ export class TensorDiagram {
 * @param yScale - callback that scales linearly on the y-axis.
 * @returns returns the generated shape so that it can be manipulated such as setting its fill color.
 */
-function drawShape(selected: d3.Selection<d3.EnterElement, Tensor, null, undefined>, d: Tensor, xScale: d3.ScaleLinear<number, number, never>, yScale: d3.ScaleLinear<number, number, never>): d3.Selection<any, Tensor, null, undefined> {
+function drawShape(
+  selected: d3.Selection<d3.EnterElement, Tensor, null, undefined>,
+  tensor: Tensor,
+  xScale: d3.ScaleLinear<number, number, never>,
+  yScale: d3.ScaleLinear<number, number, never>,
+): d3.Selection<any, Tensor, null, undefined> {
   // the figure goes inside a box with an area equal to size*size
   // (in the case of the rectangle, its width is this size, but not its length)
-  const { size } = d;
+  const { size } = tensor;
   // radius of the circumscribed circle in the box where the figure goes, also the center of the figures is in size/2
   const radius = size / 2;
   // projection of the radius on the diagonal with angle pi/4
   const diagonalRadius = Math.floor(Math.cos(Math.PI / 4) * radius);
 
   // decide what to draw according to what is specified
-  const drawShape = {
+  const strToShapeFunction = {
     circle: drawCircle,
     dot: drawCircle,
     asterisk: drawAsterisk,
@@ -466,7 +486,7 @@ function drawShape(selected: d3.Selection<d3.EnterElement, Tensor, null, undefin
   function drawCircle() {
     return selected
       .append('circle')
-      .attr('r', d.shape === 'dot' ? radius / 2 : radius)
+      .attr('r', tensor.shape === 'dot' ? radius / 2 : radius)
       .attr('cx', (d) => xScale(d.x))
       .attr('cy', (d) => yScale(d.y));
   }
@@ -589,5 +609,5 @@ function drawShape(selected: d3.Selection<d3.EnterElement, Tensor, null, undefin
   }
 
   // return the shape to be added to the node
-  return drawShape[d.shape]();
+  return strToShapeFunction[tensor.shape]();
 }
