@@ -339,44 +339,49 @@ export class TensorDiagram {
       .each(function (d) {
         if (d.shape === 'rectangle') {
           // determine the height (in positions) of this rectangular node
+          // TODO: bad pattern of param reassign, so for refactoring
+          // eslint-disable-next-line no-param-reassign
           d.rectHeight = Math.max(d.indices.filter((o) => o.pos === 'right').length,
             d.indices.filter((o) => o.pos === 'left').length);
         }
 
         // first draw pending indices (the ones that are not drawn before, not in alreadyDrawnContraction)
-        const indicesToDraw: Indice[] = [];
-        d.indices.forEach((index, j) => {
-          if (!alreadyDrawnContraction.includes(index.name)) {
-            let shiftYPerIndex = 0;
+        const indicesToDraw = d.indices
+          .filter((indice) => !alreadyDrawnContraction.includes(indice.name))
+          .map((indice, j) => {
+            let shiftYPerIndice = 0;
             let shiftYRectDown = 0;
 
             if (d.shape === 'rectangle') {
-              if (index.pos === 'right' || index.pos === 'left') {
-                // check if there is more than one index either left or right
-                shiftYPerIndex = d.indices.slice(0, j).filter((o) => o.pos === index.pos).length;
+              if (indice.pos === 'right' || indice.pos === 'left') {
+                // check if there is more than one indice either left or right
+                shiftYPerIndice = d.indices.slice(0, j).filter((o) => o.pos === indice.pos).length;
               }
 
-              if (index.pos === 'down') { shiftYRectDown = d.rectHeight! - 1; }
+              if (indice.pos === 'down') { shiftYRectDown = d.rectHeight! - 1; }
             }
 
-            // get how much an index should move to any cardinal point
-            const dv = shifts[index.pos];
+            // get how much an indice should move to any cardinal point
+            const dv = shifts[indice.pos];
 
-            index.source = {
-              x: d.x,
-              y: d.y + shiftYPerIndex,
+            return {
+              pos: indice.pos,
+              name: indice.name,
+              showLabel: indice.showLabel,
+              source: {
+                x: d.x,
+                y: d.y + shiftYPerIndice,
+              },
+              target: {
+                x: d.x + dv[0],
+                y: d.y + dv[1] + shiftYPerIndice + shiftYRectDown,
+              },
+              labelPosition: {
+                x: d.x + 1.4 * dv[0],
+                y: d.y + 1.4 * dv[1] + shiftYPerIndice + shiftYRectDown,
+              },
             };
-            index.target = {
-              x: d.x + dv[0],
-              y: d.y + dv[1] + shiftYPerIndex + shiftYRectDown,
-            };
-            index.labelPosition = {
-              x: d.x + 1.4 * dv[0],
-              y: d.y + 1.4 * dv[1] + shiftYPerIndex + shiftYRectDown,
-            };
-            indicesToDraw.push(index);
-          }
-        });
+          });
         svg.selectAll<SVGGElement, Indice[]>(`#idx${d.name}`) // identify in a particular way the indices of this node
           .data(indicesToDraw)
           .enter()
