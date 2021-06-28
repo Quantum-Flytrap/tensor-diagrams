@@ -26,7 +26,6 @@ export interface IndiceDrawable {
   labelPosition: XY;
 }
 
-// Interface or class, depenging what we want to do with it
 export interface Tensor {
   x: number;
   y: number;
@@ -37,7 +36,7 @@ export interface Tensor {
   color?: string;
   size: number;
   indices: Indice[];
-  rectHeight?: number;
+  rectHeight: number;
 }
 
 export interface Contraction {
@@ -110,6 +109,10 @@ export class TensorDiagram {
     labPos: Pos = 'up',
     size = 20,
   ): Tensor {
+    const rectHeight = Math.max(
+      indices.filter((indice) => indice.pos === 'right').length,
+      indices.filter((indice) => indice.pos === 'left').length,
+    );
     return {
       x,
       y,
@@ -119,6 +122,7 @@ export class TensorDiagram {
       labPos,
       size,
       indices,
+      rectHeight,
     };
   }
 
@@ -343,14 +347,6 @@ export class TensorDiagram {
       .data(tensors)
       .enter()
       .each(function (d) {
-        if (d.shape === 'rectangle') {
-          // determine the height (in positions) of this rectangular node
-          // TODO: bad pattern of param reassign, so for refactoring
-          // eslint-disable-next-line no-param-reassign
-          d.rectHeight = Math.max(d.indices.filter((o) => o.pos === 'right').length,
-            d.indices.filter((o) => o.pos === 'left').length);
-        }
-
         // first draw pending indices (the ones that are not drawn before, not in alreadyDrawnContraction)
         const indicesToDraw: IndiceDrawable[] = d.indices
           .filter((indice) => !alreadyDrawnContraction.includes(indice.name))
@@ -364,7 +360,7 @@ export class TensorDiagram {
                 shiftYPerIndice = d.indices.slice(0, j).filter((o) => o.pos === indice.pos).length;
               }
 
-              if (indice.pos === 'down') { shiftYRectDown = d.rectHeight! - 1; }
+              if (indice.pos === 'down') { shiftYRectDown = d.rectHeight - 1; }
             }
 
             // get how much an indice should move to any cardinal point
@@ -613,7 +609,7 @@ function drawShape(
     return selected
       .append('rect')
       .attr('width', size)
-      .attr('height', (d) => yScale(d.rectHeight! - 2) + (radius * 1.5))
+      .attr('height', (d) => yScale(d.rectHeight - 2) + (radius * 1.5))
       .attr('x', (d) => xScale(d.x) - radius)
       .attr('y', (d) => yScale(d.y) - radius)
       .attr('rx', diagonalRadius)
