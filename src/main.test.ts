@@ -1,12 +1,12 @@
-import { greet } from './main'
+import { greet } from './main';
 // import { TensorDiagram } from './diagrams'
 
 test('the data is peanut butter', () => {
-  expect(1).toBe(1)
+  expect(1).toBe(1);
 });
 
 test('greeting', () => {
-  expect(greet('Foo')).toBe('Hello Foo')
+  expect(greet('Foo')).toBe('Hello Foo');
 });
 
 // // // import/export jest + d issue
