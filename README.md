@@ -19,6 +19,7 @@ Inspirations include:
   * [Simple diagrams of convoluted neural networks](https://p.migdal.pl/2018/09/15/simple-diagrams-deep-learning.html)
   * [Symmetries and self-similarity of many-body wavefunctions](https://arxiv.org/abs/1412.6796)
 
+If you want to use tensors in the browser, you may be looking for the [Quantum-Game/quantum-tensors](https://github.com/Quantum-Game/quantum-tensors) NPM package.
 
 ## Local setup
 
@@ -27,7 +28,7 @@ Created using a NPM TypeScript frontend boilerplate [metachris/typescript-boiler
 ```bash
 # Clone the repository
 git clone https://github.com/Quantum-Game/tensor-diagrams
-cd https://github.com/Quantum-Game/tensor-diagrams
+cd tensor-diagrams
 
 # Install dependencies
 yarn install
