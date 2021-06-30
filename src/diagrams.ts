@@ -103,7 +103,7 @@ export class TensorDiagram {
     x: number,
     y: number,
     name: string,
-    indices : Indice[] = [],
+    indices: Indice[] = [],
     shape: Shape = 'circle',
     showLabel = true,
     labPos: Pos = 'up',
@@ -208,18 +208,58 @@ export class TensorDiagram {
     return this;
   }
 
-  draw(container: string, createDiagramDiv = true, equationLabels: { name: string, label: string }[] = []): void {
-    const { tensors } = this;
-    const { contractions } = this;
-    const { lines } = this;
-
-    // define distance and directions for index directions
+  indicesToDraw(): IndiceDrawable[][] {
     const shifts = {
       up: [0.00, -0.75],
       down: [0.00, 0.75],
       left: [-0.75, 0.00],
       right: [0.75, 0.00],
     };
+
+    const contractedIndicesNames = this.contractions.map((contraction) => contraction.name);
+
+    return this.tensors.map((tensor) => tensor.indices
+      .filter((indice) => !contractedIndicesNames.includes(indice.name))
+      .map((indice, j) => {
+        let shiftYPerIndice = 0;
+        let shiftYRectDown = 0;
+
+        if (tensor.shape === 'rectangle') {
+          if (indice.pos === 'right' || indice.pos === 'left') {
+            // check if there is more than one indice either left or right
+            shiftYPerIndice = tensor.indices.slice(0, j).filter((o) => o.pos === indice.pos).length;
+          }
+
+          if (indice.pos === 'down') { shiftYRectDown = tensor.rectHeight - 1; }
+        }
+
+        // get how much an indice should move to any cardinal point
+        const dv = shifts[indice.pos];
+
+        return {
+          pos: indice.pos,
+          name: indice.name,
+          showLabel: indice.showLabel,
+          source: {
+            x: tensor.x,
+            y: tensor.y + shiftYPerIndice,
+          },
+          target: {
+            x: tensor.x + dv[0],
+            y: tensor.y + dv[1] + shiftYPerIndice + shiftYRectDown,
+          },
+          labelPosition: {
+            x: tensor.x + 1.4 * dv[0],
+            y: tensor.y + 1.4 * dv[1] + shiftYPerIndice + shiftYRectDown,
+          },
+        };
+      }));
+  }
+
+  draw(container: string, createDiagramDiv = true, equationLabels: { name: string, label: string }[] = []): void {
+    const { tensors } = this;
+    const { contractions } = this;
+    const { lines } = this;
 
     // define a color scale to assign colors to nodes
     const colorScale = d3.scaleOrdinal<string, string, never>()
@@ -273,7 +313,6 @@ export class TensorDiagram {
       .attr('d', (d) => lineFunction([{ x: d.ix, y: d.iy }, { x: d.fx, y: d.fy }]));
 
     // draw contractions - lines and loops
-    const contractedIndicesNames = contractions.map((contraction) => contraction.name);
     svg.selectAll<SVGGElement, ContractionRef[]>('.contraction')
       .data(contractions)
       .enter()
@@ -338,109 +377,72 @@ export class TensorDiagram {
         ]);
       });
 
-    // draw nodes with indices (loose ends)
-
-    svg.selectAll('.tensor')
+    // tensor group
+    const tensorG = svg.selectAll('.tensor-group')
       .data(tensors)
       .enter()
-      .each(function (d) {
-        // first draw pending indices (the ones that are not drawn before, not in contractedIndicesNames)
-        const indicesToDraw: IndiceDrawable[] = d.indices
-          .filter((indice) => !contractedIndicesNames.includes(indice.name))
-          .map((indice, j) => {
-            let shiftYPerIndice = 0;
-            let shiftYRectDown = 0;
+      .append('g')
+      .attr('class', 'tensor-group');
 
-            if (d.shape === 'rectangle') {
-              if (indice.pos === 'right' || indice.pos === 'left') {
-                // check if there is more than one indice either left or right
-                shiftYPerIndice = d.indices.slice(0, j).filter((o) => o.pos === indice.pos).length;
-              }
+    // lose indice lines
+    const indicesToDraw = this.indicesToDraw();
+    tensorG.selectAll('.contraction')
+      .data((_tensor, i) => indicesToDraw[i])
+      .enter()
+      .append('path')
+      .attr('class', 'contraction')
+      .attr('d', (indice) => lineFunction([indice.source, indice.target]));
 
-              if (indice.pos === 'down') { shiftYRectDown = d.rectHeight - 1; }
-            }
+    // lose indice labels
+    tensorG.selectAll('.contraction-label')
+      .data((_tensor, i) => indicesToDraw[i])
+      .enter()
+      .append('text')
+      .attr('class', 'contraction-label')
+      .attr('x', (indice) => xScale(indice.labelPosition.x))
+      .attr('y', (indice) => yScale(indice.labelPosition.y))
+      .text((indice) => (indice.showLabel ? indice.name : ''));
 
-            // get how much an indice should move to any cardinal point
-            const dv = shifts[indice.pos];
+    tensorG.selectAll('.contraction-label');
+    // tensorG
 
-            return {
-              pos: indice.pos,
-              name: indice.name,
-              showLabel: indice.showLabel,
-              source: {
-                x: d.x,
-                y: d.y + shiftYPerIndice,
-              },
-              target: {
-                x: d.x + dv[0],
-                y: d.y + dv[1] + shiftYPerIndice + shiftYRectDown,
-              },
-              labelPosition: {
-                x: d.x + 1.4 * dv[0],
-                y: d.y + 1.4 * dv[1] + shiftYPerIndice + shiftYRectDown,
-              },
-            };
+    // tensor labels
+    tensorG.append('text')
+      .attr('class', 'tensor-label')
+      .attr('x', (tensor) => {
+        let shiftHor = 0;
+        if (tensor.labPos.startsWith('left')) shiftHor = -0.4;
+        if (tensor.labPos.startsWith('right')) shiftHor = 0.4;
+        return xScale(tensor.x + shiftHor);
+      })
+      .attr('y', (tensor) => {
+        let shiftVer = 0;
+        if (tensor.labPos.endsWith('up')) shiftVer = -0.4;
+        if (tensor.labPos.endsWith('down')) shiftVer = 0.6;
+        if (tensor.labPos === 'left' || tensor.labPos === 'right') shiftVer += 0.14;
+        return yScale(tensor.y + shiftVer);
+      })
+      .text((tensor) => tensor.name);
+
+    // tensors
+    tensorG.each(function (tensor) {
+      const selected = d3.select<SVGGElement, Tensor>(this);
+      const shape = drawShape(selected, tensor, xScale, yScale);
+      if (shape) {
+        shape.attr('class', 'tensor')
+          .style('fill', (c) => {
+            if (c.shape === 'dot') return 'black';
+            if (c.color) return c.color;
+            return colorScale(c.name);
+          })
+          .on('mouseover', (_event, c) => {
+            div.selectAll(`.tensor-eq-${c.name}`).classed('circle-sketch-highlight', true);
+          })
+          .on('mouseout', (_event, c) => {
+            div.selectAll(`.tensor-eq-${c.name}`).classed('circle-sketch-highlight', false);
           });
-        // identify in a particular way the indices of this node
-        svg.selectAll<SVGGElement, IndiceDrawable[]>(`#idx${d.name}`)
-          .data(indicesToDraw)
-          .enter()
-          .each(function (idx) {
-            // draw loose ends
-            d3.select(this)
-              .append('path')
-              .attr('class', 'contraction')
-              .attr('d', () => lineFunction([idx.source, idx.target]));
-
-            // draw indices names
-            if (idx.showLabel) {
-              d3.select(this)
-                .append('text')
-                .attr('class', 'contraction-label')
-                .attr('x', xScale(idx.labelPosition.x))
-                .attr('y', yScale(idx.labelPosition.y))
-                .text(idx.name);
-            }
-          });
-
-        // second draw nodes
-        const selected = d3.select<d3.EnterElement, Tensor>(this);
-        const shape = drawShape(selected, d, xScale, yScale);
-        if (shape) {
-          shape.attr('class', 'tensor')
-            .style('fill', (c) => {
-              if (c.shape === 'dot') return 'black';
-              if (c.color) return c.color;
-              return colorScale(c.name);
-            })
-            .on('mouseover', (_event, c) => {
-              div.selectAll(`.tensor-eq-${c.name}`).classed('circle-sketch-highlight', true);
-            })
-            .on('mouseout', (_event, c) => {
-              div.selectAll(`.tensor-eq-${c.name}`).classed('circle-sketch-highlight', false);
-            });
-        }
-
-        // third draw tensor names
-        if (d.showLabel) {
-          selected.append('text')
-            .attr('class', 'tensor-label')
-            .attr('x', (c) => {
-              let shiftHor = 0;
-              if (c.labPos.startsWith('left')) shiftHor = -0.4;
-              if (c.labPos.startsWith('right')) shiftHor = 0.4;
-              return xScale(c.x + shiftHor);
-            })
-            .attr('y', (c) => {
-              let shiftVer = 0;
-              if (c.labPos.endsWith('up')) shiftVer = -0.4;
-              if (c.labPos.endsWith('down')) shiftVer = 0.6;
-              if (c.labPos === 'left' || c.labPos === 'right') shiftVer += 0.14;
-              return yScale(c.y + shiftVer);
-            })
-            .text((c) => c.name);
-        }
-      });
+      }
+    });
   }
 }
 
@@ -456,7 +458,7 @@ export class TensorDiagram {
 * @returns returns the generated shape so that it can be manipulated such as setting its fill color.
 */
 function drawShape(
-  selected: d3.Selection<d3.EnterElement, Tensor, null, undefined>,
+  selected: d3.Selection<SVGGElement, Tensor, null, undefined>,
   tensor: Tensor,
   xScale: d3.ScaleLinear<number, number, never>,
   yScale: d3.ScaleLinear<number, number, never>,
