@@ -265,36 +265,32 @@ export class TensorDiagram {
       .attr('width', this.width)
       .attr('height', this.height);
 
-    // draw lines
+    // draw non-connected lines
     svg.selectAll('.contraction')
       .data(lines)
       .enter().append('path')
       .attr('class', 'contraction')
       .attr('d', (d) => lineFunction([{ x: d.ix, y: d.iy }, { x: d.fx, y: d.fy }]));
 
-    // draw contractions
-
-    const alreadyDrawnContraction: string[] = []; // remember indexes (indicated as contractions) already drawn
-
-    svg.selectAll<SVGGElement, ContractionRef[]>('.contraction') // lines and 'loops'
+    // draw contractions - lines and loops
+    const contractedIndicesNames = contractions.map((contraction) => contraction.name);
+    svg.selectAll<SVGGElement, ContractionRef[]>('.contraction')
       .data(contractions)
       .enter()
       .append('path')
       .attr('class', 'contraction')
       .attr('d', (d, i) => {
-        alreadyDrawnContraction.push(d.name);
-
-        let shiftYPerContraction = 0;
-        if (d.source.shape === 'rectangle') {
-          shiftYPerContraction = contractions.slice(0, i)
-            .filter((o) => o.source.name === d.source.name && o.target.name === d.target.name).length;
-        }
+        const shiftYPerContraction = d.source.shape === 'rectangle'
+          ? contractions.slice(0, i)
+            .filter((o) => o.source.name === d.source.name && o.target.name === d.target.name).length
+          : 0;
 
         const sourcePos = d.source.indices.filter((o) => o.name === d.name)[0].pos;
         const targetPos = d.target.indices.filter((o) => o.name === d.name)[0].pos;
 
+        // draw a straight line
         if ((sourcePos === 'right' && targetPos === 'left')
-          || (sourcePos === 'down' && targetPos === 'up')) { // draw a straight line
+          || (sourcePos === 'down' && targetPos === 'up')) {
           const source = {
             x: d.source.x,
             y: d.source.y + shiftYPerContraction,
@@ -303,9 +299,10 @@ export class TensorDiagram {
             x: d.target.x,
             y: d.target.y + shiftYPerContraction,
           };
-          return lineFunction([source, target]); // validate if there are nodes in between
-        } // draw a curve line
+          return lineFunction([source, target]);
+        }
 
+        // or draw a curved line
         const { dirX, dirY } = {
           up: { dirX: 0, dirY: 1 },
           down: { dirX: 0, dirY: -1 },
@@ -341,15 +338,15 @@ export class TensorDiagram {
         ]);
       });
 
-    // draw nodes w/indices (loose ends)
+    // draw nodes with indices (loose ends)
 
     svg.selectAll('.tensor')
       .data(tensors)
       .enter()
       .each(function (d) {
-        // first draw pending indices (the ones that are not drawn before, not in alreadyDrawnContraction)
+        // first draw pending indices (the ones that are not drawn before, not in contractedIndicesNames)
         const indicesToDraw: IndiceDrawable[] = d.indices
-          .filter((indice) => !alreadyDrawnContraction.includes(indice.name))
+          .filter((indice) => !contractedIndicesNames.includes(indice.name))
           .map((indice, j) => {
             let shiftYPerIndice = 0;
             let shiftYRectDown = 0;
