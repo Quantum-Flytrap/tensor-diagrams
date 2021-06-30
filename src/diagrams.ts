@@ -167,16 +167,6 @@ export class TensorDiagram {
     const inds3 = up.map((s): Indice => ({ name: s, pos: 'up', showLabel: true }));
     const inds4 = down.map((s): Indice => ({ name: s, pos: 'down', showLabel: true }));
     const tensor = TensorDiagram.createTensor(pos.x, pos.y, name, inds1.concat(inds2).concat(inds3).concat(inds4));
-    // : Tensor = {
-    //   x: pos.x,
-    //   y: pos.y,
-    //   name,
-    //   shape: 'circle',
-    //   showLabel: true,
-    //   labPos: 'up',
-    //   size: 20,
-    //   indices: inds1.concat(inds2).concat(inds3).concat(inds4),
-    // };
     this.tensors.push(tensor);
     return this;
   }
@@ -208,6 +198,10 @@ export class TensorDiagram {
     return this;
   }
 
+  /**
+   * (Internal function)
+   * @returns Lose indice lines.
+   */
   indicesToDraw(): IndiceDrawable[][] {
     const shifts = {
       up: [0.00, -0.75],
@@ -410,17 +404,22 @@ export class TensorDiagram {
     tensorG.append('text')
       .attr('class', 'tensor-label')
       .attr('x', (tensor) => {
-        let shiftHor = 0;
-        if (tensor.labPos.startsWith('left')) shiftHor = -0.4;
-        if (tensor.labPos.startsWith('right')) shiftHor = 0.4;
-        return xScale(tensor.x + shiftHor);
+        const shiftX = {
+          left: -0.4,
+          right: 0.4,
+          up: 0,
+          down: 0,
+        };
+        return xScale(tensor.x + shiftX[tensor.labPos]);
       })
       .attr('y', (tensor) => {
-        let shiftVer = 0;
-        if (tensor.labPos.endsWith('up')) shiftVer = -0.4;
-        if (tensor.labPos.endsWith('down')) shiftVer = 0.6;
-        if (tensor.labPos === 'left' || tensor.labPos === 'right') shiftVer += 0.14;
-        return yScale(tensor.y + shiftVer);
+        const shiftY = {
+          left: 0.14,
+          right: 0.14,
+          up: -0.4,
+          down: 0.6,
+        };
+        return yScale(tensor.y + shiftY[tensor.labPos]);
       })
       .text((tensor) => tensor.name);
 
