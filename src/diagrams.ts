@@ -75,6 +75,14 @@ export class TensorDiagram {
 
   startColorIndex = 0; // this is interlan and should be removed
 
+  xScale = d3.scaleLinear()
+    .domain([0, 8])
+    .range([20, 500]);
+
+  yScale = d3.scaleLinear()
+    .domain([0, 8])
+    .range([60, 500]);
+
   constructor(tensors: Tensor[], contractions: Contraction[], lines: Line[]) {
     this.tensors = tensors;
 
@@ -259,14 +267,8 @@ export class TensorDiagram {
     const colorScale = d3.scaleOrdinal<string, string, never>()
       .range(['#763E9B', '#00882B', '#C82505', '#0165C0', '#EEEEEE'].slice(this.startColorIndex));
 
-    const xScale = d3.scaleLinear()
-      .domain([0, 8])
-      .range([20, 500]);
-
-    const yScale = d3.scaleLinear()
-      .domain([0, 8])
-      .range([60, 500]);
-
+    const { xScale } = this;
+    const { yScale } = this;
     const lineFunction = d3.line<XY>()
       .x((d) => xScale(d.x))
       .y((d) => yScale(d.y));
@@ -423,12 +425,12 @@ export class TensorDiagram {
       })
       .text((tensor) => tensor.name);
 
-    const { drawShape } = this;
+    const drawShape = this.drawShape.bind(this);
     // tensors
     tensorG
       // eslint-disable-next-line func-names
       .each(function (tensor) {
-        const shape = drawShape(this, tensor, xScale, yScale);
+        const shape = drawShape(this, tensor);
         shape.attr('class', 'tensor')
           .style('fill', (c) => {
             if (c.shape === 'dot') return 'black';
@@ -455,14 +457,12 @@ export class TensorDiagram {
   * @param yScale - callback that scales linearly on the y-axis.
   * @returns returns the generated shape so that it can be manipulated such as setting its fill color.
   */
-  // eslint-disable-next-line class-methods-use-this
   drawShape(
     element: SVGGElement,
     tensor: Tensor,
-    xScale: d3.ScaleLinear<number, number, never>,
-    yScale: d3.ScaleLinear<number, number, never>,
   ): d3.Selection<any, Tensor, null, undefined> {
     const selected = d3.select<SVGGElement, Tensor>(element);
+    const { xScale, yScale } = this;
     // the figure goes inside a box with an area equal to size*size
     // (in the case of the rectangle, its width is this size, but not its length)
     const { size } = tensor;
