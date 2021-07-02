@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import * as d3 from 'd3';
 
@@ -210,7 +211,7 @@ export class TensorDiagram {
    * (Internal function)
    * @returns Lose indice lines.
    */
-  indicesToDraw(): IndiceDrawable[][] {
+  loseIndices(): IndiceDrawable[][] {
     const shifts = {
       up: [0.00, -0.75],
       down: [0.00, 0.75],
@@ -259,16 +260,14 @@ export class TensorDiagram {
   }
 
   draw(container: string, createDiagramDiv = true, equationLabels: { name: string, label: string }[] = []): void {
-    const { tensors } = this;
-    const { contractions } = this;
-    const { lines } = this;
+    const {
+      tensors, contractions, lines, xScale, yScale,
+    } = this;
 
     // define a color scale to assign colors to nodes
     const colorScale = d3.scaleOrdinal<string, string, never>()
       .range(['#763E9B', '#00882B', '#C82505', '#0165C0', '#EEEEEE'].slice(this.startColorIndex));
 
-    const { xScale } = this;
-    const { yScale } = this;
     const lineFunction = d3.line<XY>()
       .x((d) => xScale(d.x))
       .y((d) => yScale(d.y));
@@ -381,9 +380,9 @@ export class TensorDiagram {
       .attr('class', 'tensor-group');
 
     // lose indice lines
-    const indicesToDraw = this.indicesToDraw();
+    const loseIndices = this.loseIndices();
     tensorG.selectAll('.contraction')
-      .data((_tensor, i) => indicesToDraw[i])
+      .data((_tensor, i) => loseIndices[i])
       .enter()
       .append('path')
       .attr('class', 'contraction')
@@ -391,7 +390,7 @@ export class TensorDiagram {
 
     // lose indice labels
     tensorG.selectAll('.contraction-label')
-      .data((_tensor, i) => indicesToDraw[i])
+      .data((_tensor, i) => loseIndices[i])
       .enter()
       .append('text')
       .attr('class', 'contraction-label')
