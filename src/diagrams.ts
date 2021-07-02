@@ -150,6 +150,7 @@ export class TensorDiagram {
    * @param right Indice names for right.
    * @param up Indice names for up.
    * @param down Indice names for down.
+   * @param shape Visual shape of the tensor.
    * @returns An updated TensorDiagram, so it is chainable.
    */
   addTensor(
@@ -159,6 +160,7 @@ export class TensorDiagram {
     right: string[] = [],
     up: string[] = [],
     down: string[] = [],
+    shape: Shape = 'circle',
   ): TensorDiagram {
     let pos: XY = { x: 0, y: 0 };
     switch (position) {
@@ -177,7 +179,8 @@ export class TensorDiagram {
     const inds2 = right.map((s): Indice => ({ name: s, pos: 'right', showLabel: true }));
     const inds3 = up.map((s): Indice => ({ name: s, pos: 'up', showLabel: true }));
     const inds4 = down.map((s): Indice => ({ name: s, pos: 'down', showLabel: true }));
-    const tensor = TensorDiagram.createTensor(pos.x, pos.y, name, inds1.concat(inds2).concat(inds3).concat(inds4));
+    const indices = [...inds1, ...inds2, ...inds3, ...inds4];
+    const tensor = TensorDiagram.createTensor(pos.x, pos.y, name, indices, shape);
     this.tensors.push(tensor);
     return this;
   }
