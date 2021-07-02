@@ -74,7 +74,9 @@ export class TensorDiagram {
 
   height = 300;
 
-  startColorIndex = 0; // this is interlan and should be removed
+  colorScale = d3.scaleOrdinal<string, string, never>()
+    .domain(['dot', 'conv'])
+    .range(['black', 'black', '#763E9B', '#00882B', '#C82505', '#0165C0']);
 
   xScale = d3.scaleLinear()
     .domain([0, 8])
@@ -208,6 +210,35 @@ export class TensorDiagram {
   }
 
   /**
+   * Set color scheme for tensors without explicitly defined colors.
+   * @param names Tensor names to set color for.
+   * @param color Color to set for the tensors followed by the next colors for other tensors.
+   * @params appendScheme Appends colors from a pre-defined color scheme.
+   * @returns An updated TensorDiagram, so it is chainable.
+  */
+  setColorScheme(
+    names: string[],
+    colors: string[],
+    appendScheme: 'none' | 'tensornetwork' | 'd3category10' | 'google10' = 'd3category10',
+  ): TensorDiagram {
+    const colorsToAppend = {
+      none: [],
+      tensornetwork: [
+        '#763E9B', '#00882B', '#C82505', '#0165C0',
+      ],
+      google10: [
+        '#3366cc', '#dc3912', '#ff9900', '#109618', '#990099', '#0099c6', '#dd4477', '#66aa00', '#b82e2e', '#316395',
+      ],
+      d3category10: [
+        '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf',
+      ],
+    }[appendScheme];
+    this.colorScale.domain(names);
+    this.colorScale.range(colors.concat(colorsToAppend));
+    return this;
+  }
+
+  /**
    * (Internal function)
    * @returns Lose indice lines.
    */
@@ -261,12 +292,8 @@ export class TensorDiagram {
 
   draw(container: string, createDiagramDiv = true, equationLabels: { name: string, label: string }[] = []): void {
     const {
-      tensors, contractions, lines, xScale, yScale,
+      tensors, contractions, lines, xScale, yScale, colorScale,
     } = this;
-
-    // define a color scale to assign colors to nodes
-    const colorScale = d3.scaleOrdinal<string, string, never>()
-      .range(['#763E9B', '#00882B', '#C82505', '#0165C0', '#EEEEEE'].slice(this.startColorIndex));
 
     const lineFunction = d3.line<XY>()
       .x((d) => xScale(d.x))
@@ -290,9 +317,9 @@ export class TensorDiagram {
       .attr('class', (d) => `eq-elem tensor-eq-${d.name}`)
       .html((d) => d.label);
 
-    // add same color to elements in formula as indicated w/idEqPart parameter
+    // add same color to elements in formula
     tensors.forEach((d) => {
-      div.selectAll(`.tensor-eq-${d.name}`).style('color', colorScale(d.name));
+      div.selectAll(`.tensor-eq-${d.name}`).style('color', d.color || colorScale(d.name));
     });
 
     const svg = div.select('.eq-diagram')
@@ -431,11 +458,7 @@ export class TensorDiagram {
       .each(function (tensor) {
         const shape = drawShape(this, tensor);
         shape.attr('class', 'tensor')
-          .style('fill', (c) => {
-            if (c.shape === 'dot') return 'black';
-            if (c.color) return c.color;
-            return colorScale(c.name);
-          })
+          .style('fill', (c) => c.color || colorScale(c.name))
           .on('mouseover', (_event, c) => {
             div.selectAll(`.tensor-eq-${c.name}`).classed('circle-sketch-highlight', true);
           })
