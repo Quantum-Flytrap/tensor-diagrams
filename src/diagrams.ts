@@ -74,9 +74,7 @@ export class TensorDiagram {
 
   height = 300;
 
-  colorScale = d3.scaleOrdinal<string, string, never>()
-    .domain(['dot', 'conv'])
-    .range(['black', 'black', '#763E9B', '#00882B', '#C82505', '#0165C0']);
+  colorScale = d3.scaleOrdinal<string, string, never>();
 
   xScale = d3.scaleLinear()
     .domain([0, 8])
@@ -100,6 +98,8 @@ export class TensorDiagram {
     }));
 
     this.lines = lines;
+
+    this.setColorScheme(['dot', 'conv'], ['black', 'black'], 'tensornetwork');
   }
 
   /**
@@ -213,7 +213,7 @@ export class TensorDiagram {
    * Set color scheme for tensors without explicitly defined colors.
    * @param names Tensor names to set color for.
    * @param color Color to set for the tensors followed by the next colors for other tensors.
-   * @params appendScheme Appends colors from a pre-defined color scheme.
+   * @param appendScheme Appends colors from a pre-defined color scheme.
    * @returns An updated TensorDiagram, so it is chainable.
   */
   setColorScheme(
