@@ -371,21 +371,21 @@ export class TensorDiagram {
           up: { dirX: 0, dirY: 1 },
           down: { dirX: 0, dirY: -1 },
           left: { dirX: 1, dirY: 0 },
-          right: { dirX: -0, dirY: 0 },
+          right: { dirX: -1, dirY: 0 },
         }[d.pos];
 
         const { dirXOut, dirYOut } = {
-          right: { dirXOut: 0, dirYOut: 1 },
-          left: { dirXOut: 0, dirYOut: -1 },
-          down: { dirXOut: 1, dirYOut: 0 },
-          up: { dirXOut: -0, dirYOut: 0 },
+          down: { dirXOut: 0, dirYOut: 1 },
+          up: { dirXOut: 0, dirYOut: -1 },
+          right: { dirXOut: 1, dirYOut: 0 },
+          left: { dirXOut: -1, dirYOut: 0 },
         }[sourcePos];
 
         const { dirXIn, dirYIn } = {
-          right: { dirXIn: 0, dirYIn: 1 },
-          left: { dirXIn: 0, dirYIn: -1 },
-          down: { dirXIn: 1, dirYIn: 0 },
-          up: { dirXIn: -0, dirYIn: 0 },
+          down: { dirXIn: 0, dirYIn: 1 },
+          up: { dirXIn: 0, dirYIn: -1 },
+          right: { dirXIn: 1, dirYIn: 0 },
+          left: { dirXIn: -1, dirYIn: 0 },
         }[targetPos];
 
         return curveFunction([
