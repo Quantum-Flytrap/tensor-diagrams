@@ -40,6 +40,14 @@ export interface Tensor {
   rectHeight: number;
 }
 
+export interface TensorOpts {
+  shape?: Shape;
+  showLabel?: boolean;
+  labelPos?: Pos;
+  color?: string;
+  size?: number;
+}
+
 export interface Contraction {
   source: number;
   target: number;
@@ -160,7 +168,7 @@ export class TensorDiagram {
     right: string[] = [],
     up: string[] = [],
     down: string[] = [],
-    shape: Shape = 'circle',
+    opts: TensorOpts = {},
   ): TensorDiagram {
     let pos: XY = { x: 0, y: 0 };
     switch (position) {
@@ -180,7 +188,9 @@ export class TensorDiagram {
     const inds3 = up.map((s): Indice => ({ name: s, pos: 'up', showLabel: true }));
     const inds4 = down.map((s): Indice => ({ name: s, pos: 'down', showLabel: true }));
     const indices = [...inds1, ...inds2, ...inds3, ...inds4];
-    const tensor = TensorDiagram.createTensor(pos.x, pos.y, name, indices, shape);
+    const tensor = TensorDiagram.createTensor(
+      pos.x, pos.y, name, indices, opts.shape ?? 'circle', opts.showLabel ?? true, opts.labelPos, opts.size,
+    );
     this.tensors.push(tensor);
     return this;
   }
@@ -210,6 +220,47 @@ export class TensorDiagram {
     this.width = width;
     this.height = height;
     return this;
+  }
+
+  /**
+   * Generate a formula string for NumPy, PyTorch and TensorFlow conventions for einsum.
+   * E.g. einsum('ij,jk->ik', A, B)
+   * https://numpy.org/doc/stable/reference/generated/numpy.einsum.html
+   * https://pytorch.org/docs/master/generated/torch.einsum.html#torch.einsum
+   * https://www.tensorflow.org/api_docs/python/tf/einsum
+   * @returns A string representing the formula.
+  */
+  toFormulaEinsum(): string {
+    const indiceNames = this.tensors.map((tensor) => tensor.indices.map((indice) => indice.name));
+    const tensorNames = this.tensors.map((tensor) => tensor.name);
+    const indicesAll = indiceNames.flatMap((name) => name);
+    const indicesContracted = this.contractions.map((contraction) => contraction.name);
+    const indicesFree: string[] = [];
+    indicesAll.forEach((name) => {
+      if (!indicesContracted.includes(name) && !indicesFree.includes(name)) {
+        indicesFree.push(name);
+      }
+    });
+    const indicesPerTensorStr = indiceNames.map((ids) => ids.join('')).join(',');
+    const indicesFreeStr = indicesFree.join('');
+    const tensorNamesStr = tensorNames.join(', ');
+
+    return `einsum('${indicesPerTensorStr}->${indicesFreeStr}', ${tensorNamesStr})`;
+  }
+
+  /**
+   * Generate a LaTeX formula.
+   * E.g. \sum_{j} A_{ij} B_{jk}
+   * @returns A string representing the formula.
+  */
+  toFormulaLaTeX(): string {
+    const tensorsLaTeX = this.tensors.map((tensor) => {
+      const indicesStr = tensor.indices.map((indice) => indice.name).join('');
+      return `${tensor.name}_{${indicesStr}}`;
+    });
+    const indicesContracted = this.contractions.map((contraction) => contraction.name);
+
+    return `\\sum_{${indicesContracted.join('')}} ${tensorsLaTeX.join(' ')}`;
   }
 
   /**
@@ -243,9 +294,9 @@ export class TensorDiagram {
 
   /**
    * (Internal function)
-   * @returns Lose indice lines.
+   * @returns Loose indice lines.
    */
-  loseIndices(): IndiceDrawable[][] {
+  looseIndices(): IndiceDrawable[][] {
     const shifts = {
       up: [0.00, -0.75],
       down: [0.00, 0.75],
@@ -371,21 +422,21 @@ export class TensorDiagram {
           up: { dirX: 0, dirY: 1 },
           down: { dirX: 0, dirY: -1 },
           left: { dirX: 1, dirY: 0 },
-          right: { dirX: -0, dirY: 0 },
+          right: { dirX: -1, dirY: 0 },
         }[d.pos];
 
         const { dirXOut, dirYOut } = {
-          right: { dirXOut: 0, dirYOut: 1 },
-          left: { dirXOut: 0, dirYOut: -1 },
-          down: { dirXOut: 1, dirYOut: 0 },
-          up: { dirXOut: -0, dirYOut: 0 },
+          down: { dirXOut: 0, dirYOut: 1 },
+          up: { dirXOut: 0, dirYOut: -1 },
+          right: { dirXOut: 1, dirYOut: 0 },
+          left: { dirXOut: -1, dirYOut: 0 },
         }[sourcePos];
 
         const { dirXIn, dirYIn } = {
-          right: { dirXIn: 0, dirYIn: 1 },
-          left: { dirXIn: 0, dirYIn: -1 },
-          down: { dirXIn: 1, dirYIn: 0 },
-          up: { dirXIn: -0, dirYIn: 0 },
+          down: { dirXIn: 0, dirYIn: 1 },
+          up: { dirXIn: 0, dirYIn: -1 },
+          right: { dirXIn: 1, dirYIn: 0 },
+          left: { dirXIn: -1, dirYIn: 0 },
         }[targetPos];
 
         return curveFunction([
@@ -409,18 +460,18 @@ export class TensorDiagram {
       .append('g')
       .attr('class', 'tensor-group');
 
-    // lose indice lines
-    const loseIndices = this.loseIndices();
+    // loose indice lines
+    const looseIndices = this.looseIndices();
     tensorG.selectAll('.contraction')
-      .data((_tensor, i) => loseIndices[i])
+      .data((_tensor, i) => looseIndices[i])
       .enter()
       .append('path')
       .attr('class', 'contraction')
       .attr('d', (indice) => lineFunction([indice.source, indice.target]));
 
-    // lose indice labels
+    // loose indice labels
     tensorG.selectAll('.contraction-label')
-      .data((_tensor, i) => loseIndices[i])
+      .data((_tensor, i) => looseIndices[i])
       .enter()
       .append('text')
       .attr('class', 'contraction-label')
@@ -452,7 +503,7 @@ export class TensorDiagram {
         };
         return yScale(tensor.y + shiftY[tensor.labPos]);
       })
-      .text((tensor) => tensor.name);
+      .text((tensor) => (tensor.showLabel ? tensor.name : ''));
 
     const drawShape = this.drawShape.bind(this);
     // tensors

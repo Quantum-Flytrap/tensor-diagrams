@@ -16,6 +16,7 @@
   </div>
   <div id="simpler" class="equation"></div>
   <div id="simpler-formula" class="equation"></div>
+  <div id="trAB" class="equation"></div>
   <script>
     const tensors = [
       TensorDiagram.createTensor(0, 0, "x", [
@@ -50,9 +51,9 @@
       .draw("#simpler");
 
     TensorDiagram.new()
-      .addTensor("x", "start", [], ["i"])
-      .addTensor("A", "right", ["i"], ["j"])
-      .addTensor("B", "right", ["j"], ["k"])
+      .addTensor("x", "start", [], ["i"], [], [], { labelPos: 'down' })
+      .addTensor("A", "right", ["i"], ["j"], [], [], { showLabel: false, size: 40 })
+      .addTensor("B", "right", ["j"], ["k"], [], [], { shape: 'triangleLeft', color: 'white' })
       .addContraction(0, 1, "i")
       .addContraction(1, 2, "j")
       .setSize(220, 120)
@@ -62,6 +63,15 @@
         { name: "A", label: "A_ij" },
         { name: "B", label: "B_jk" },
       ]);
+
+    TensorDiagram.new()
+      .addTensor("A", { x: 1, y: 0 }, ["i"], ["j"])
+      .addTensor("B", "right", ["j"], ["i"])
+      .addContraction(0, 1, "i", "down")
+      .addContraction(0, 1, "j")
+      .setSize(220, 120)
+      .draw("#trAB");
+
 
   </script>
 </body>
