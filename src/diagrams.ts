@@ -284,9 +284,9 @@ export class TensorDiagram {
 
   /**
    * (Internal function)
-   * @returns Lose indice lines.
+   * @returns Loose indice lines.
    */
-  loseIndices(): IndiceDrawable[][] {
+  looseIndices(): IndiceDrawable[][] {
     const shifts = {
       up: [0.00, -0.75],
       down: [0.00, 0.75],
@@ -450,18 +450,18 @@ export class TensorDiagram {
       .append('g')
       .attr('class', 'tensor-group');
 
-    // lose indice lines
-    const loseIndices = this.loseIndices();
+    // loose indice lines
+    const looseIndices = this.looseIndices();
     tensorG.selectAll('.contraction')
-      .data((_tensor, i) => loseIndices[i])
+      .data((_tensor, i) => looseIndices[i])
       .enter()
       .append('path')
       .attr('class', 'contraction')
       .attr('d', (indice) => lineFunction([indice.source, indice.target]));
 
-    // lose indice labels
+    // loose indice labels
     tensorG.selectAll('.contraction-label')
-      .data((_tensor, i) => loseIndices[i])
+      .data((_tensor, i) => looseIndices[i])
       .enter()
       .append('text')
       .attr('class', 'contraction-label')
