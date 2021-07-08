@@ -213,6 +213,32 @@ export class TensorDiagram {
   }
 
   /**
+   * Generate a formula string for NumPy, PyTorch and TensorFlow conventions for einsum.
+   * E.g. einsum('ij,jk->ik', A, B)
+   * https://numpy.org/doc/stable/reference/generated/numpy.einsum.html
+   * https://pytorch.org/docs/master/generated/torch.einsum.html#torch.einsum
+   * https://www.tensorflow.org/api_docs/python/tf/einsum
+   * @returns A string representing the formula.
+  */
+  toFormulaEinsum(): string {
+    const indiceNames = this.tensors.map((tensor) => tensor.indices.map((indice) => indice.name));
+    const tensorNames = this.tensors.map((tensor) => tensor.name);
+    const indicesAll = indiceNames.flatMap((name) => name);
+    const indicesContracted = this.contractions.map((contraction) => contraction.name);
+    const indicesFree: string[] = [];
+    indicesAll.forEach((name) => {
+      if (!indicesContracted.includes(name) && !indicesFree.includes(name)) {
+        indicesFree.push(name);
+      }
+    });
+    const indicesPerTensorStr = indiceNames.map((ids) => ids.join('')).join(',');
+    const indicesFreeStr = indicesFree.join('');
+    const tensorNamesStr = tensorNames.join(', ');
+
+    return `einsum('${indicesPerTensorStr}->${indicesFreeStr}', ${tensorNamesStr})`;
+  }
+
+  /**
    * Set color scheme for tensors without explicitly defined colors.
    * @param names Tensor names to set color for.
    * @param color Color to set for the tensors followed by the next colors for other tensors.
