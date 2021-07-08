@@ -51,9 +51,9 @@
       .draw("#simpler");
 
     TensorDiagram.new()
-      .addTensor("x", "start", [], ["i"])
-      .addTensor("A", "right", ["i"], ["j"])
-      .addTensor("B", "right", ["j"], ["k"])
+      .addTensor("x", "start", [], ["i"], [], [], { labelPos: 'down' })
+      .addTensor("A", "right", ["i"], ["j"], [], [], { showLabel: false, size: 40 })
+      .addTensor("B", "right", ["j"], ["k"], [], [], { shape: 'triangleLeft', color: 'white' })
       .addContraction(0, 1, "i")
       .addContraction(1, 2, "j")
       .setSize(220, 120)

@@ -40,6 +40,14 @@ export interface Tensor {
   rectHeight: number;
 }
 
+export interface TensorOpts {
+  shape?: Shape;
+  showLabel?: boolean;
+  labelPos?: Pos;
+  color?: string;
+  size?: number;
+}
+
 export interface Contraction {
   source: number;
   target: number;
@@ -160,7 +168,7 @@ export class TensorDiagram {
     right: string[] = [],
     up: string[] = [],
     down: string[] = [],
-    shape: Shape = 'circle',
+    opts: TensorOpts = {},
   ): TensorDiagram {
     let pos: XY = { x: 0, y: 0 };
     switch (position) {
@@ -180,7 +188,9 @@ export class TensorDiagram {
     const inds3 = up.map((s): Indice => ({ name: s, pos: 'up', showLabel: true }));
     const inds4 = down.map((s): Indice => ({ name: s, pos: 'down', showLabel: true }));
     const indices = [...inds1, ...inds2, ...inds3, ...inds4];
-    const tensor = TensorDiagram.createTensor(pos.x, pos.y, name, indices, shape);
+    const tensor = TensorDiagram.createTensor(
+      pos.x, pos.y, name, indices, opts.shape ?? 'circle', opts.showLabel ?? true, opts.labelPos, opts.size,
+    );
     this.tensors.push(tensor);
     return this;
   }
@@ -493,7 +503,7 @@ export class TensorDiagram {
         };
         return yScale(tensor.y + shiftY[tensor.labPos]);
       })
-      .text((tensor) => tensor.name);
+      .text((tensor) => (tensor.showLabel ? tensor.name : ''));
 
     const drawShape = this.drawShape.bind(this);
     // tensors
