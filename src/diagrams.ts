@@ -239,6 +239,21 @@ export class TensorDiagram {
   }
 
   /**
+   * Generate a LaTeX formula.
+   * E.g. \sum_{j} A_{ij} B_{jk}
+   * @returns A string representing the formula.
+  */
+  toFormulaLaTeX(): string {
+    const tensorsLaTeX = this.tensors.map((tensor) => {
+      const indicesStr = tensor.indices.map((indice) => indice.name).join('');
+      return `${tensor.name}_{${indicesStr}}`;
+    });
+    const indicesContracted = this.contractions.map((contraction) => contraction.name);
+
+    return `\\sum_{${indicesContracted.join('')}} ${tensorsLaTeX.join(' ')}`;
+  }
+
+  /**
    * Set color scheme for tensors without explicitly defined colors.
    * @param names Tensor names to set color for.
    * @param color Color to set for the tensors followed by the next colors for other tensors.
