@@ -17,6 +17,7 @@
   <div id="simpler" class="equation"></div>
   <div id="simpler-formula" class="equation"></div>
   <div id="trAB" class="equation"></div>
+  <div id="tensorLabel" class="equation"></div>
   <script>
     const tensors = [
       TensorDiagram.createTensor(0, 0, "x", [
@@ -72,6 +73,10 @@
       .setSize(220, 120)
       .draw("#trAB");
 
+    TensorDiagram.new()
+      .addTensor("A", { x: 1, y: 0 }, [], [], [], [], { labelPos: 'up left' })
+      .setSize(140, 120)
+      .draw("#tensorLabel");
 
   </script>
 </body>

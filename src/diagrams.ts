@@ -492,7 +492,7 @@ export class TensorDiagram {
           up: 0,
           down: 0,
         };
-        return xScale(tensor.x + shiftX[tensor.labPos]);
+        return xScale(tensor.x + shiftX[tensor.labPos.split(" ", 2)[1] ?? tensor.labPos]);
       })
       .attr('y', (tensor) => {
         const shiftY = {
@@ -501,7 +501,7 @@ export class TensorDiagram {
           up: -0.4,
           down: 0.6,
         };
-        return yScale(tensor.y + shiftY[tensor.labPos]);
+        return yScale(tensor.y + shiftY[tensor.labPos.split(" ", 1)[0]]);
       })
       .text((tensor) => (tensor.showLabel ? tensor.name : ''));
 
