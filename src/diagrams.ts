@@ -7,7 +7,7 @@ interface XY {
   y: number
 }
 
-type Pos = 'left' | 'right' | 'up' | 'down';
+type Pos = 'left' | 'right' | 'up' | 'down' | 'center' | 'up left' | 'up right' | 'down left' | 'down right';
 
 type Shape = 'circle' | 'dot' | 'asterisk' | 'square' | 'triangleUp'
 | 'triangleDown' | 'triangleLeft' | 'triangleRight' | 'rectangle';
@@ -491,8 +491,13 @@ export class TensorDiagram {
           right: 0.4,
           up: 0,
           down: 0,
+          center: 0,
+          'up left': -0.4,
+          'down left': -0.4,
+          'up right': 0.4,
+          'down right': 0.4,
         };
-        return xScale(tensor.x + shiftX[tensor.labPos.split(' ', 2)[1] ?? tensor.labPos]);
+        return xScale(tensor.x + shiftX[tensor.labPos]);
       })
       .attr('y', (tensor) => {
         const shiftY = {
@@ -500,8 +505,13 @@ export class TensorDiagram {
           right: 0.14,
           up: -0.4,
           down: 0.6,
+          center: 0,
+          'up left': -0.4,
+          'down left': 0.6,
+          'up right': -0.4,
+          'down right': 0.6,
         };
-        return yScale(tensor.y + shiftY[tensor.labPos.split(' ', 1)[0]]);
+        return yScale(tensor.y + shiftY[tensor.labPos]);
       })
       .text((tensor) => (tensor.showLabel ? tensor.name : ''));
 
