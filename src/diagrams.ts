@@ -7,6 +7,7 @@ interface XY {
   y: number
 }
 
+// TODO: use a different type depending if 4 or 9 positions
 type Pos = 'left' | 'right' | 'up' | 'down' | 'center' | 'up left' | 'up right' | 'down left' | 'down right';
 
 type Shape = 'circle' | 'dot' | 'asterisk' | 'square' | 'triangleUp'
