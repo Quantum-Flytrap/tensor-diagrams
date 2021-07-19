@@ -17,6 +17,7 @@
   <div id="simpler" class="equation"></div>
   <div id="simpler-formula" class="equation"></div>
   <div id="trAB" class="equation"></div>
+  <div id="implicitdots" class="equation"></div>
   <script>
     const tensors = [
       TensorDiagram.createTensor(0, 0, "x", [
@@ -72,6 +73,16 @@
       .setSize(220, 120)
       .draw("#trAB");
 
+    TensorDiagram.new()
+      .addTensor("x", "start", [], ["i"])
+      .addTensor("A", "right", ["i"], ["j"])
+      .addTensor("B", { x: 3, y: 0 }, ["j"], ["k"])
+      .addTensor("C", { x: 2, y: 1 }, [], [], ["j"], ["l"], { labelPos: "left" })
+      .addSummation("i")
+      .addSummation("j", { x: 2, y: 0 })
+      .addSummation("k")
+      .setSize(300, 200)
+      .draw("#implicitdots");
 
   </script>
 </body>
