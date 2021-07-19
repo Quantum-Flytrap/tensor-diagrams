@@ -7,7 +7,8 @@ interface XY {
   y: number
 }
 
-type Pos = 'left' | 'right' | 'up' | 'down';
+// TODO: use a different type depending if 4 or 9 positions
+type Pos = 'left' | 'right' | 'up' | 'down' | 'center' | 'up left' | 'up right' | 'down left' | 'down right';
 
 const opposite = (pos: Pos): Pos => {
   const mapping: Record<Pos, Pos> = {
@@ -566,6 +567,11 @@ export class TensorDiagram {
           right: 0.4,
           up: 0,
           down: 0,
+          center: 0,
+          'up left': -0.4,
+          'down left': -0.4,
+          'up right': 0.4,
+          'down right': 0.4,
         };
         return xScale(tensor.x + shiftX[tensor.labPos]);
       })
@@ -575,6 +581,11 @@ export class TensorDiagram {
           right: 0.14,
           up: -0.4,
           down: 0.6,
+          center: 0,
+          'up left': -0.4,
+          'down left': 0.6,
+          'up right': -0.4,
+          'down right': 0.6,
         };
         return yScale(tensor.y + shiftY[tensor.labPos]);
       })
