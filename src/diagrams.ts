@@ -7,8 +7,8 @@ interface XY {
   y: number
 }
 
-// TODO: use a different type depending if 4 or 9 positions
-type Pos = 'left' | 'right' | 'up' | 'down' | 'center' | 'up left' | 'up right' | 'down left' | 'down right';
+type Pos = 'left' | 'right' | 'up' | 'down';
+type LabelPos = 'left' | 'right' | 'up' | 'down' | 'center' | 'up left' | 'up right' | 'down left' | 'down right';
 
 const opposite = (pos: Pos): Pos => {
   const mapping: Record<Pos, Pos> = {
@@ -44,7 +44,7 @@ export interface Tensor {
   name: string;
   shape: Shape;
   showLabel: boolean;
-  labPos: Pos;
+  labPos: LabelPos;
   color?: string;
   size: number;
   indices: Indice[];
@@ -136,7 +136,7 @@ export class TensorDiagram {
     indices: Indice[] = [],
     shape: Shape = 'circle',
     showLabel = true,
-    labPos: Pos = 'up',
+    labPos: LabelPos = 'up',
     size = 20,
   ): Tensor {
     const rectHeight = Math.max(
@@ -562,7 +562,7 @@ export class TensorDiagram {
     tensorG.append('text')
       .attr('class', 'tensor-label')
       .attr('x', (tensor) => {
-        const shiftX = {
+        const shiftX: Record<LabelPos, number> = {
           left: -0.4,
           right: 0.4,
           up: 0,
@@ -576,7 +576,7 @@ export class TensorDiagram {
         return xScale(tensor.x + shiftX[tensor.labPos]);
       })
       .attr('y', (tensor) => {
-        const shiftY = {
+        const shiftY: Record<LabelPos, number> = {
           left: 0.14,
           right: 0.14,
           up: -0.4,
