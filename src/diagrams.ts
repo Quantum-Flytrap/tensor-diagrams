@@ -10,6 +10,16 @@ interface XY {
 // TODO: use a different type depending if 4 or 9 positions
 type Pos = 'left' | 'right' | 'up' | 'down' | 'center' | 'up left' | 'up right' | 'down left' | 'down right';
 
+const opposite = (pos: Pos): Pos => {
+  const mapping: Record<Pos, Pos> = {
+    left: 'right',
+    right: 'left',
+    up: 'down',
+    down: 'up',
+  };
+  return mapping[pos];
+};
+
 type Shape = 'circle' | 'dot' | 'asterisk' | 'square' | 'triangleUp'
 | 'triangleDown' | 'triangleLeft' | 'triangleRight' | 'rectangle';
 
@@ -217,6 +227,72 @@ export class TensorDiagram {
     return this;
   }
 
+  /**
+   * Sum over an indice with a selected name.
+   * If there are exactly two, it results in a typical contraction.
+   * If there is one or more than two - it creates a dot symbol.
+   * @param name Indice name.
+   * @param position Dot position. If not specified, it will use a default pos (average).
+   * @returns  An updated TensorDiagram, so it is chainable.
+   */
+  addSummation(name: string, position?: XY): TensorDiagram {
+    const relevantTensors = this.tensors.filter((tensor) => tensor.indices.some((indice) => indice.name === name));
+    const dotOpts: TensorOpts = { shape: 'dot', showLabel: false };
+    switch (relevantTensors.length) {
+      case 0:
+        throw new Error(`addSummation error: no tensors with an indice ${name}`);
+      case 1:
+        // eslint-disable-next-line no-case-declarations
+        const oneTensor = relevantTensors[0];
+        // eslint-disable-next-line no-case-declarations
+        const indicePos = oneTensor.indices.filter((indice) => indice.name === name)[0].pos;
+        switch (indicePos) {
+          case 'left':
+            this.addTensor('dot', { x: oneTensor.x - 1, y: oneTensor.y }, [], [name], [], [], dotOpts);
+            break;
+          case 'right':
+            this.addTensor('dot', { x: oneTensor.x + 1, y: oneTensor.y }, [name], [], [], [], dotOpts);
+            break;
+          case 'up':
+            this.addTensor('dot', { x: oneTensor.x, y: oneTensor.y - 1 }, [], [], [], [name], dotOpts);
+            break;
+          case 'down':
+            this.addTensor('dot', { x: oneTensor.x, y: oneTensor.y + 1 }, [], [], [name], [], dotOpts);
+            break;
+          default:
+            throw new Error(`Invalid position ${indicePos} for indice ${name}`);
+        }
+        this.addContraction(this.tensors.indexOf(oneTensor), this.tensors.length - 1, name);
+        break;
+      case 2:
+        this.addContraction(this.tensors.indexOf(relevantTensors[0]), this.tensors.indexOf(relevantTensors[1]), name);
+        break;
+      default:
+        // eslint-disable-next-line no-case-declarations
+        const dotPosition: XY = position ?? {
+          x: d3.mean(relevantTensors, (tensor) => tensor.x) ?? 0,
+          y: d3.mean(relevantTensors, (tensor) => tensor.y) ?? 0,
+        };
+        this.addTensor('dot', dotPosition, [], [], [], [], dotOpts);
+        // eslint-disable-next-line no-case-declarations
+        const dotTensor = this.lastTensor;
+        relevantTensors.forEach((tensor, i) => {
+          // assumes that only one indice with such name
+          const indice = tensor.indices.find((ind) => ind.name === name)!;
+          const newName = `${name}${i}`; // kind of dirty
+          dotTensor.indices.push({
+            pos: opposite(indice.pos),
+            name: newName,
+            showLabel: false,
+          });
+          indice.name = newName; // kind of dirty
+          this.addContraction(this.tensors.indexOf(tensor), this.tensors.length - 1, newName);
+        });
+        break;
+    }
+    return this;
+  }
+
   setSize(width: number, height: number): TensorDiagram {
     this.width = width;
     this.height = height;
@@ -405,8 +481,7 @@ export class TensorDiagram {
         const targetPos = d.target.indices.filter((o) => o.name === d.name)[0].pos;
 
         // draw a straight line
-        if ((sourcePos === 'right' && targetPos === 'left')
-          || (sourcePos === 'down' && targetPos === 'up')) {
+        if ((sourcePos === opposite(targetPos))) {
           const source = {
             x: d.source.x,
             y: d.source.y + shiftYPerContraction,
