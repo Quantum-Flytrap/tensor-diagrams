@@ -481,7 +481,10 @@ export class TensorDiagram {
         const targetPos = d.target.indices.filter((o) => o.name === d.name)[0].pos;
 
         // draw a straight line
-        if ((sourcePos === opposite(targetPos))) {
+        if ((sourcePos === 'right' && targetPos === 'left' && (d.source.x < d.target.x))
+        || (sourcePos === 'left' && targetPos === 'right' && (d.source.x > d.target.x))
+        || (sourcePos === 'down' && targetPos === 'up' && (d.source.y < d.target.y))
+        || (sourcePos === 'up' && targetPos === 'down' && (d.source.y > d.target.y))) {
           const source = {
             x: d.source.x,
             y: d.source.y + shiftYPerContraction,
