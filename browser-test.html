@@ -83,7 +83,7 @@
       .addTensor("x", "start", [], ["i"])
       .addTensor("A", "right", ["i"], ["j"])
       .addTensor("B", { x: 3, y: 0 }, ["j"], ["k"])
-      .addTensor("C", { x: 2, y: 1 }, [], [], ["j"], ["l"], { labelPos: "left" })
+      .addTensor("C", { x: 2, y: 1 }, [], [], ["j"], ["l"], { labelPos: "center" })
       .addSummation("i")
       .addSummation("j", { x: 2, y: 0 })
       .addSummation("k")
