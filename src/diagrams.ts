@@ -199,8 +199,16 @@ export class TensorDiagram {
     const inds3 = up.map((s): Indice => ({ name: s, pos: 'up', showLabel: true }));
     const inds4 = down.map((s): Indice => ({ name: s, pos: 'down', showLabel: true }));
     const indices = [...inds1, ...inds2, ...inds3, ...inds4];
+    const bigTensor = inds1.length > 1 || inds2.length > 1;
     const tensor = TensorDiagram.createTensor(
-      pos.x, pos.y, name, indices, opts.shape ?? 'circle', opts.showLabel ?? true, opts.labelPos, opts.size,
+      pos.x,
+      pos.y,
+      name,
+      indices,
+      opts.shape ?? (bigTensor ? 'rectangle' : 'circle'),
+      opts.showLabel ?? true,
+      opts.labelPos,
+      opts.size,
     );
     this.tensors.push(tensor);
     return this;

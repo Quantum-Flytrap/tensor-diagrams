@@ -19,6 +19,8 @@
   <div id="trAB" class="equation"></div>
   <div id="tensorLabel" class="equation"></div>
   <div id="implicitdots" class="equation"></div>
+  <div id="dl-data" class="equation"></div>
+  <div id="dl-avgs" class="equation"></div>
   <script>
     const tensors = [
       TensorDiagram.createTensor(0, 0, "x", [
@@ -89,6 +91,18 @@
       .addSummation("k")
       .setSize(300, 200)
       .draw("#implicitdots");
+
+    TensorDiagram.new()
+      .addTensor("X", "start", [], ["n", "c", "x", "y"], [], [])
+      .setSize(160, 300)
+      .draw("#dl-data");
+
+    TensorDiagram.new()
+      .addTensor("X", "start", [], ["n", "c", "x", "y"], [], [], { shape: "rectangle"})
+      .addSummation("n")
+      .addSummation("x")
+      .setSize(160, 300)
+      .draw("#dl-avgs");
 
   </script>
 </body>
