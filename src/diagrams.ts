@@ -199,8 +199,16 @@ export class TensorDiagram {
     const inds3 = up.map((s): Indice => ({ name: s, pos: 'up', showLabel: true }));
     const inds4 = down.map((s): Indice => ({ name: s, pos: 'down', showLabel: true }));
     const indices = [...inds1, ...inds2, ...inds3, ...inds4];
+    const bigTensor = inds1.length > 1 || inds2.length > 1;
     const tensor = TensorDiagram.createTensor(
-      pos.x, pos.y, name, indices, opts.shape ?? 'circle', opts.showLabel ?? true, opts.labelPos, opts.size,
+      pos.x,
+      pos.y,
+      name,
+      indices,
+      opts.shape ?? (bigTensor ? 'rectangle' : 'circle'),
+      opts.showLabel ?? true,
+      opts.labelPos,
+      opts.size,
     );
     this.tensors.push(tensor);
     return this;
@@ -558,8 +566,24 @@ export class TensorDiagram {
       .attr('y', (indice) => yScale(indice.labelPosition.y))
       .text((indice) => (indice.showLabel ? indice.name : ''));
 
-    tensorG.selectAll('.contraction-label');
     // tensorG
+    tensorG.selectAll('.contraction-label');
+
+    // tensor shapes
+    const drawShape = this.drawShape.bind(this);
+    tensorG
+      // eslint-disable-next-line func-names
+      .each(function (tensor) {
+        const shape = drawShape(this, tensor);
+        shape.attr('class', 'tensor')
+          .style('fill', (c) => c.color || colorScale(c.name))
+          .on('mouseover', (_event, c) => {
+            div.selectAll(`.tensor-eq-${c.name}`).classed('circle-sketch-highlight', true);
+          })
+          .on('mouseout', (_event, c) => {
+            div.selectAll(`.tensor-eq-${c.name}`).classed('circle-sketch-highlight', false);
+          });
+      });
 
     // tensor labels
     tensorG.append('text')
@@ -584,7 +608,7 @@ export class TensorDiagram {
           right: 0.14,
           up: -0.4,
           down: 0.6,
-          center: 0,
+          center: 0.1,
           'up left': -0.4,
           'down left': 0.6,
           'up right': -0.4,
@@ -593,22 +617,6 @@ export class TensorDiagram {
         return yScale(tensor.y + shiftY[tensor.labPos]);
       })
       .text((tensor) => (tensor.showLabel ? tensor.name : ''));
-
-    const drawShape = this.drawShape.bind(this);
-    // tensors
-    tensorG
-      // eslint-disable-next-line func-names
-      .each(function (tensor) {
-        const shape = drawShape(this, tensor);
-        shape.attr('class', 'tensor')
-          .style('fill', (c) => c.color || colorScale(c.name))
-          .on('mouseover', (_event, c) => {
-            div.selectAll(`.tensor-eq-${c.name}`).classed('circle-sketch-highlight', true);
-          })
-          .on('mouseout', (_event, c) => {
-            div.selectAll(`.tensor-eq-${c.name}`).classed('circle-sketch-highlight', false);
-          });
-      });
   }
 
   /**
