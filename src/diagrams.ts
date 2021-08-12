@@ -199,6 +199,7 @@ export default class TensorDiagramCore {
         const dotTensor = this.lastTensor;
         relevantTensors.forEach((tensor, i) => {
           // assumes that only one indice with such name
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const indice = tensor.indices.find((ind) => ind.name === name)!;
           const newName = `${name}${i}`; // kind of dirty
           dotTensor.indices.push({

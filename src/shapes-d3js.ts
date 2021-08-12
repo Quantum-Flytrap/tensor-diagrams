@@ -17,6 +17,7 @@ export default function drawShape(
   tensor: Tensor,
   xScale: d3.ScaleLinear<number, number, never>,
   yScale: d3.ScaleLinear<number, number, never>,
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): d3.Selection<any, Tensor, null, undefined> {
   const selected = select<SVGGElement, Tensor>(element);
   // the figure goes inside a box with an area equal to size*size
