@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-use-before-define */
 import * as d3 from 'd3';
+import TensorDiagramCore from './diagrams';
 import {
-  TensorDiagramCore, IndiceDrawable, Tensor, Contraction, ContractionRef, Line, XY, LabelPos,
-} from './diagrams';
+  IndiceDrawable, Tensor, Contraction, ContractionRef, Line, XY, LabelPos,
+} from './interfaces';
 
 export default class TensorDiagram extends TensorDiagramCore {
   colorScale = d3.scaleOrdinal<string, string, never>();

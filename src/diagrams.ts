@@ -1,11 +1,6 @@
-export interface XY {
-  x: number;
-  y: number
-}
-
-type Pos = 'left' | 'right' | 'up' | 'down';
-export type LabelPos = 'left' | 'right' | 'up' | 'down' | 'center'
-| 'up left' | 'up right' | 'down left' | 'down right';
+import {
+  Contraction, ContractionRef, Indice, IndiceDrawable, LabelPos, Line, Pos, RelPos, Shape, Tensor, TensorOpts, XY,
+} from './interfaces';
 
 const opposite = (pos: Pos): Pos => {
   const mapping: Record<Pos, Pos> = {
@@ -17,69 +12,7 @@ const opposite = (pos: Pos): Pos => {
   return mapping[pos];
 };
 
-type Shape = 'circle' | 'dot' | 'asterisk' | 'square' | 'triangleUp'
-| 'triangleDown' | 'triangleLeft' | 'triangleRight' | 'rectangle';
-
-export interface Indice {
-  pos: Pos;
-  name: string;
-  showLabel: boolean;
-}
-
-export interface IndiceDrawable {
-  pos: Pos;
-  name: string;
-  showLabel: boolean;
-  source: XY;
-  target: XY;
-  labelPosition: XY;
-}
-
-export interface Tensor {
-  x: number;
-  y: number;
-  name: string;
-  shape: Shape;
-  showLabel: boolean;
-  labPos: LabelPos;
-  color?: string;
-  size: number;
-  indices: Indice[];
-  rectHeight: number;
-}
-
-export interface TensorOpts {
-  shape?: Shape;
-  showLabel?: boolean;
-  labelPos?: Pos;
-  color?: string;
-  size?: number;
-}
-
-export interface Contraction {
-  source: number;
-  target: number;
-  name: string;
-  pos?: Pos;
-}
-
-export interface ContractionRef {
-  source: Tensor;
-  target: Tensor;
-  name: string;
-  pos: Pos;
-}
-
-export interface Line {
-  ix: number;
-  iy: number;
-  fx: number;
-  fy: number;
-}
-
-export type RelPos = 'start' | 'right' | 'down' | XY;
-
-export class TensorDiagramCore {
+export default class TensorDiagramCore {
   tensors: Tensor[] = [];
 
   contractions: ContractionRef[] = [];
