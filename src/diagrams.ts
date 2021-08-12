@@ -161,7 +161,7 @@ export default class TensorDiagramCore {
    * @param position Dot position. If not specified, it will use a default pos (average).
    * @returns  An updated TensorDiagram, so it is chainable.
    */
-  addSummation(name: string, position: XY): TensorDiagramCore {
+  addSummation(name: string, position?: XY): TensorDiagramCore {
     const relevantTensors = this.tensors.filter((tensor) => tensor.indices.some((indice) => indice.name === name));
     const dotOpts: TensorOpts = { shape: 'dot', showLabel: false };
     switch (relevantTensors.length) {
@@ -194,7 +194,8 @@ export default class TensorDiagramCore {
         this.addContraction(this.tensors.indexOf(relevantTensors[0]), this.tensors.indexOf(relevantTensors[1]), name);
         break;
       default:
-        this.addTensor('dot', position, [], [], [], [], dotOpts);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.addTensor('dot', position!, [], [], [], [], dotOpts);
         // eslint-disable-next-line no-case-declarations
         const dotTensor = this.lastTensor;
         relevantTensors.forEach((tensor, i) => {
