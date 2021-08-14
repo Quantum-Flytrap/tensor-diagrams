@@ -54,10 +54,8 @@ export interface Contraction {
 }
 
 export interface Line {
-  ix: number;
-  iy: number;
-  fx: number;
-  fy: number;
+  start: XY;
+  end: XY;
 }
 
 export type RelPos = 'start' | 'right' | 'down' | XY;

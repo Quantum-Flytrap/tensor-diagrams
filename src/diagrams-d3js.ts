@@ -154,7 +154,7 @@ export default class TensorDiagram extends TensorDiagramCore {
       .data(lines)
       .enter().append('path')
       .attr('class', 'contraction')
-      .attr('d', (d) => lineFunction([{ x: d.ix, y: d.iy }, { x: d.fx, y: d.fy }]));
+      .attr('d', (d) => lineFunction([{ x: d.start.x, y: d.start.y }, { x: d.end.x, y: d.end.y }]));
 
     // draw contractions - lines and loops
     svg.selectAll<SVGGElement, Contraction[]>('.contraction')
