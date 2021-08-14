@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 import TensorDiagramCore from './diagrams';
 import drawShape from './shapes-d3js';
 import {
-  IndiceDrawable, Tensor, Contraction, Line, XY, LabelPos,
+  Tensor, Contraction, Line, XY, LabelPos,
 } from './interfaces';
 
 export default class TensorDiagram extends TensorDiagramCore {
@@ -58,58 +58,6 @@ export default class TensorDiagram extends TensorDiagramCore {
     this.colorScale.domain(names);
     this.colorScale.range(colors.concat(colorsToAppend));
     return this;
-  }
-
-  /**
-   * (Internal function)
-   * @returns Loose indice lines.
-   */
-  looseIndices(): IndiceDrawable[][] {
-    const shifts = {
-      up: [0.00, -0.75],
-      down: [0.00, 0.75],
-      left: [-0.75, 0.00],
-      right: [0.75, 0.00],
-    };
-
-    const contractedIndicesNames = this.contractions.map((contraction) => contraction.name);
-
-    return this.tensors.map((tensor) => tensor.indices
-      .filter((indice) => !contractedIndicesNames.includes(indice.name))
-      .map((indice) => {
-        let shiftYPerIndice = 0;
-        let shiftYRectDown = 0;
-
-        if (tensor.shape === 'rectangle') {
-          if (indice.pos === 'right' || indice.pos === 'left') {
-            // check if there is more than one indice either left or right
-            shiftYPerIndice = tensor.indices.filter((ind) => ind.pos === indice.pos).indexOf(indice);
-          }
-
-          if (indice.pos === 'down') { shiftYRectDown = tensor.rectHeight - 1; }
-        }
-
-        // get how much an indice should move to any cardinal point
-        const dv = shifts[indice.pos];
-
-        return {
-          pos: indice.pos,
-          name: indice.name,
-          showLabel: indice.showLabel,
-          source: {
-            x: tensor.x,
-            y: tensor.y + shiftYPerIndice,
-          },
-          target: {
-            x: tensor.x + dv[0],
-            y: tensor.y + dv[1] + shiftYPerIndice + shiftYRectDown,
-          },
-          labelPosition: {
-            x: tensor.x + 1.4 * dv[0],
-            y: tensor.y + 1.4 * dv[1] + shiftYPerIndice + shiftYRectDown,
-          },
-        };
-      }));
   }
 
   draw(container: string, createDiagramDiv = true, equationLabels: { name: string, label: string }[] = []): void {
