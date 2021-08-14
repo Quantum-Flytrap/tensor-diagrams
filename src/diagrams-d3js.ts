@@ -114,14 +114,9 @@ export default class TensorDiagram extends TensorDiagramCore {
         const sourcePos = d.source.indices.filter((o) => o.name === d.name)[0].pos;
         const targetPos = d.target.indices.filter((o) => o.name === d.name)[0].pos;
         const sourceShiftY = d.source.indices
-          .filter((ind) => ind.pos === d.pos)
-          .map((ind) => ind.name)
-          .indexOf(d.name);
+          .filter((ind) => ind.name === d.name)[0].order;
         const targetShiftY = d.target.indices
-          .filter((ind) => ind.pos === d.pos)
-          .map((ind) => ind.name)
-          .indexOf(d.name);
-
+          .filter((ind) => ind.name === d.name)[0].order;
         // draw a straight line
         if ((sourcePos === 'right' && targetPos === 'left' && (d.source.x < d.target.x))
         || (sourcePos === 'left' && targetPos === 'right' && (d.source.x > d.target.x))
@@ -129,11 +124,11 @@ export default class TensorDiagram extends TensorDiagramCore {
         || (sourcePos === 'up' && targetPos === 'down' && (d.source.y > d.target.y))) {
           const source = {
             x: d.source.x,
-            y: d.source.y + sourceShiftY + 1,
+            y: d.source.y + sourceShiftY,
           };
           const target = {
             x: d.target.x,
-            y: d.target.y + targetShiftY + 1,
+            y: d.target.y + targetShiftY,
           };
           return lineFunction([source, target]);
         }

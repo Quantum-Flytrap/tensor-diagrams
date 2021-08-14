@@ -102,10 +102,18 @@ export default class TensorDiagramCore {
       default:
         pos = position;
     }
-    const inds1 = left.map((s): Indice => ({ name: s, pos: 'left', showLabel: true }));
-    const inds2 = right.map((s): Indice => ({ name: s, pos: 'right', showLabel: true }));
-    const inds3 = up.map((s): Indice => ({ name: s, pos: 'up', showLabel: true }));
-    const inds4 = down.map((s): Indice => ({ name: s, pos: 'down', showLabel: true }));
+    const inds1 = left.map((s, i): Indice => ({
+      name: s, pos: 'left', order: i, showLabel: true,
+    }));
+    const inds2 = right.map((s, i): Indice => ({
+      name: s, pos: 'right', order: i, showLabel: true,
+    }));
+    const inds3 = up.map((s, i): Indice => ({
+      name: s, pos: 'up', order: i, showLabel: true,
+    }));
+    const inds4 = down.map((s, i): Indice => ({
+      name: s, pos: 'down', order: i, showLabel: true,
+    }));
     const indices = [...inds1, ...inds2, ...inds3, ...inds4];
     const bigTensor = inds1.length > 1 || inds2.length > 1;
     const tensor = TensorDiagramCore.createTensor(
@@ -161,22 +169,22 @@ export default class TensorDiagramCore {
         // eslint-disable-next-line no-case-declarations
         const oneTensor = relevantTensors[0];
         // eslint-disable-next-line no-case-declarations
-        const indicePos = oneTensor.indices.filter((indice) => indice.name === name)[0].pos;
-        switch (indicePos) {
+        const indOne = oneTensor.indices.filter((indice) => indice.name === name)[0];
+        switch (indOne.pos) {
           case 'left':
-            this.addTensor('dot', { x: oneTensor.x - 1, y: oneTensor.y }, [], [name], [], [], dotOpts);
+            this.addTensor('dot', { x: oneTensor.x - 1, y: oneTensor.y + indOne.order }, [], [name], [], [], dotOpts);
             break;
           case 'right':
-            this.addTensor('dot', { x: oneTensor.x + 1, y: oneTensor.y }, [name], [], [], [], dotOpts);
+            this.addTensor('dot', { x: oneTensor.x + 1, y: oneTensor.y + indOne.order }, [name], [], [], [], dotOpts);
             break;
           case 'up':
-            this.addTensor('dot', { x: oneTensor.x, y: oneTensor.y - 1 }, [], [], [], [name], dotOpts);
+            this.addTensor('dot', { x: oneTensor.x + indOne.order, y: oneTensor.y - 1 }, [], [], [], [name], dotOpts);
             break;
           case 'down':
-            this.addTensor('dot', { x: oneTensor.x, y: oneTensor.y + 1 }, [], [], [name], [], dotOpts);
+            this.addTensor('dot', { x: oneTensor.x + indOne.order, y: oneTensor.y + 1 }, [], [], [name], [], dotOpts);
             break;
           default:
-            throw new Error(`Invalid position ${indicePos} for indice ${name}`);
+            throw new Error(`Invalid position ${indOne.pos} for indice ${name}`);
         }
         this.addContraction(this.tensors.indexOf(oneTensor), this.tensors.length - 1, name);
         break;
@@ -196,6 +204,7 @@ export default class TensorDiagramCore {
           dotTensor.indices.push({
             pos: opposite(indice.pos),
             name: newName,
+            order: dotTensor.indices.filter((ind) => ind.pos === opposite(indice.pos)).length,
             showLabel: false,
           });
           indice.name = newName; // kind of dirty
@@ -270,16 +279,10 @@ export default class TensorDiagramCore {
     return this.tensors.map((tensor) => tensor.indices
       .filter((indice) => !contractedIndicesNames.includes(indice.name))
       .map((indice) => {
-        let shiftYPerIndice = 0;
         let shiftYRectDown = 0;
 
-        if (tensor.shape === 'rectangle') {
-          if (indice.pos === 'right' || indice.pos === 'left') {
-            // check if there is more than one indice either left or right
-            shiftYPerIndice = tensor.indices.filter((ind) => ind.pos === indice.pos).indexOf(indice);
-          }
-
-          if (indice.pos === 'down') { shiftYRectDown = tensor.rectHeight - 1; }
+        if (tensor.shape === 'rectangle' && indice.pos === 'down') {
+          shiftYRectDown = tensor.rectHeight - 1;
         }
 
         // get how much an indice should move to any cardinal point
@@ -291,15 +294,15 @@ export default class TensorDiagramCore {
           showLabel: indice.showLabel,
           source: {
             x: tensor.x,
-            y: tensor.y + shiftYPerIndice,
+            y: tensor.y + indice.order,
           },
           target: {
             x: tensor.x + dv[0],
-            y: tensor.y + dv[1] + shiftYPerIndice + shiftYRectDown,
+            y: tensor.y + dv[1] + indice.order + shiftYRectDown,
           },
           labelPosition: {
             x: tensor.x + 1.4 * dv[0],
-            y: tensor.y + 1.4 * dv[1] + shiftYPerIndice + shiftYRectDown,
+            y: tensor.y + 1.4 * dv[1] + indice.order + shiftYRectDown,
           },
         };
       }));

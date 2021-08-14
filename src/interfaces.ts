@@ -13,6 +13,7 @@ export type Shape = 'circle' | 'dot' | 'asterisk' | 'square' | 'triangleUp'
 export interface Indice {
   pos: Pos;
   name: string;
+  order: number;
   showLabel: boolean;
 }
 
