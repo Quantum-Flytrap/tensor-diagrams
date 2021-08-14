@@ -1,5 +1,5 @@
 import {
-  Contraction, ContractionRef, Indice, IndiceDrawable, LabelPos, Line, Pos, RelPos, Shape, Tensor, TensorOpts, XY,
+  Contraction, Indice, IndiceDrawable, LabelPos, Line, Pos, RelPos, Shape, Tensor, TensorOpts, XY,
 } from './interfaces';
 
 const opposite = (pos: Pos): Pos => {
@@ -15,7 +15,7 @@ const opposite = (pos: Pos): Pos => {
 export default class TensorDiagramCore {
   tensors: Tensor[] = [];
 
-  contractions: ContractionRef[] = [];
+  contractions: Contraction[] = [];
 
   lines: Line[] = [];
 
@@ -25,17 +25,7 @@ export default class TensorDiagramCore {
 
   constructor(tensors: Tensor[], contractions: Contraction[], lines: Line[]) {
     this.tensors = tensors;
-
-    // mapping contractions and setting defaults
-    this.contractions = contractions.map(({
-      source, target, name, pos,
-    }) => ({
-      source: this.tensors[source],
-      target: this.tensors[target],
-      name,
-      pos: pos || 'up',
-    }));
-
+    this.contractions = contractions;
     this.lines = lines;
   }
 
@@ -143,7 +133,7 @@ export default class TensorDiagramCore {
    * @todo Check if an indice exists in both tensors.
    */
   addContraction(i: number, j: number, name: string, pos: Pos = 'up'): TensorDiagramCore {
-    const contraction: ContractionRef = {
+    const contraction: Contraction = {
       source: this.tensors[i],
       target: this.tensors[j],
       name,

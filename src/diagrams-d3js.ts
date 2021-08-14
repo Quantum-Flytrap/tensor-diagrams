@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 import TensorDiagramCore from './diagrams';
 import drawShape from './shapes-d3js';
 import {
-  IndiceDrawable, Tensor, Contraction, ContractionRef, Line, XY, LabelPos,
+  IndiceDrawable, Tensor, Contraction, Line, XY, LabelPos,
 } from './interfaces';
 
 export default class TensorDiagram extends TensorDiagramCore {
@@ -157,7 +157,7 @@ export default class TensorDiagram extends TensorDiagramCore {
       .attr('d', (d) => lineFunction([{ x: d.ix, y: d.iy }, { x: d.fx, y: d.fy }]));
 
     // draw contractions - lines and loops
-    svg.selectAll<SVGGElement, ContractionRef[]>('.contraction')
+    svg.selectAll<SVGGElement, Contraction[]>('.contraction')
       .data(contractions)
       .enter()
       .append('path')

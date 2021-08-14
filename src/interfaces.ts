@@ -47,13 +47,6 @@ export interface TensorOpts {
 }
 
 export interface Contraction {
-  source: number;
-  target: number;
-  name: string;
-  pos?: Pos;
-}
-
-export interface ContractionRef {
   source: Tensor;
   target: Tensor;
   name: string;
