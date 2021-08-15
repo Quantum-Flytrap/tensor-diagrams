@@ -5,13 +5,13 @@
 ![Buld status](https://github.com/Quantum-Game/tensor-diagrams/actions/workflows/lint-and-test.yml/badge.svg)
 [![Twitter @QuantumGameIO](https://img.shields.io/twitter/follow/QuantumGameIO)](https://twitter.com/quantumgameio)
 
-A package for creating visual tensor diagrams using [Penrose graphical notation](https://en.wikipedia.org/wiki/Penrose_graphical_notation) in D3js. For machine learning, deep learning, quantum computing, quantum information, and other array operations.By [Piotr Migdał](https://p.migdal.pl/) and [Claudia Zendejas-Morales](https://claudiazm.xyz/) from [Quantum Flytrap](https://quantumflytrap.com/).  
+A package for creating visual tensor diagrams using [Penrose graphical notation](https://en.wikipedia.org/wiki/Penrose_graphical_notation) in D3js. For machine learning, deep learning, quantum computing, quantum information, and other array operations. By [Piotr Migdał](https://p.migdal.pl/) and [Claudia Zendejas-Morales](https://claudiazm.xyz/) from [Quantum Flytrap](https://quantumflytrap.com/).  
 
 A simple live version: https://jsfiddle.net/stared/60ndm3co/.
 
 Inspirations include:
 
-* http://tensornetwork.org/diagrams/
+* [tensornetwork.org/diagrams](http://tensornetwork.org/diagrams/)
 * [Matrices as Tensor Network Diagrams](https://www.math3ma.com/blog/matrices-as-tensor-network-diagrams) by Tai-Danae Bradley
 * [Drawing Trace Diagrams with TikZ](http://elishapeterson.wikidot.com/tikz:diagrams) by Elisha Peterson
 * Piotr's longstanding interest in data visualization of array operations
@@ -27,7 +27,7 @@ Created using a NPM TypeScript frontend boilerplate [metachris/typescript-boiler
 
 ```bash
 # Clone the repository
-git clone https://github.com/Quantum-Game/tensor-diagrams
+git clone https://github.com/Quantum-Flytrap/tensor-diagrams
 cd tensor-diagrams
 
 # Install dependencies
@@ -44,4 +44,4 @@ yarn docs
 
 ## Feedback
 
-The easiest feedback is by opening a [GitHub Issue](https://github.com/Quantum-Game/tensor-diagrams/issues).
+The easiest feedback is by opening a [GitHub Issue](https://github.com/Quantum-Flytrap/tensor-diagrams/issues).
