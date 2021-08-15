@@ -6,14 +6,6 @@
 </head>
 
 <body>
-  <div id="firstcontainer" class="equation">
-    <div class="eq-diagram">
-    </div>
-    <div class="eq-elem"> = ∑_ij</div>
-    <div class="eq-elem tensor-eq-x">x_i</div>
-    <div class="eq-elem tensor-eq-A">A_ij</div>
-    <div class="eq-elem tensor-eq-B">B_jk</div>
-  </div>
   <div id="simpler" class="equation"></div>
   <div id="simpler-formula" class="equation"></div>
   <div id="trAB" class="equation"></div>
@@ -22,38 +14,6 @@
   <div id="dl-data" class="equation"></div>
   <div id="dl-avgs" class="equation"></div>
   <script>
-    const tensors = [
-      TensorDiagram.createTensor(0, 0, "x", [
-        { pos: "right", name: "i", showLabel: true },
-      ]),
-      TensorDiagram.createTensor(1, 0, "A", [
-        { pos: "left", name: "i", showLabel: true },
-        { pos: "right", name: "j", showLabel: true }
-      ]),
-      TensorDiagram.createTensor(2, 0, "B", [
-        { pos: "left", name: "j", showLabel: true },
-        { pos: "right", name: "k", showLabel: true }
-      ]),
-    ];
-
-    const contractions = [
-      { source: 0, target: 1, name: "i" },
-      { source: 1, target: 2, name: "j" },
-    ];
-
-    const diagram = new TensorDiagram(tensors, contractions, []);
-    diagram.setSize(220, 120).draw("#firstcontainer", false);
-
-    TensorDiagram.new()
-      .addTensor("x", "start", [], ["i"])
-      .addTensor("A", "right", ["i"], ["j"])
-      .addTensor("B", "right", ["j"], ["k"])
-      .addContraction(0, 1, "i")
-      .addContraction(1, 2, "j")
-      .setSize(220, 120)
-      .setColorScheme(['x'], ['red'], 'd3category10')
-      .draw("#simpler");
-
     TensorDiagram.new()
       .addTensor("x", "start", [], ["i"], [], [], { labelPos: 'down' })
       .addTensor("A", "right", ["i"], ["j"], [], [], { showLabel: false, size: 40 })
@@ -98,7 +58,7 @@
       .draw("#dl-data");
 
     TensorDiagram.new()
-      .addTensor("X", "start", [], ["n", "c", "x", "y"], [], [], { shape: "rectangle"})
+      .addTensor("X", "start", [], ["n", "c", "x", "y"], [], [], { shape: "rectangle" })
       .addSummation("n")
       .addSummation("x")
       .setSize(160, 300)
