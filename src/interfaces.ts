@@ -17,15 +17,6 @@ export interface Indice {
   showLabel: boolean;
 }
 
-export interface IndiceDrawable {
-  pos: Pos;
-  name: string;
-  showLabel: boolean;
-  source: XY;
-  target: XY;
-  labelPosition: XY;
-}
-
 export interface Tensor {
   x: number;
   y: number;

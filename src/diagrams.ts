@@ -1,5 +1,5 @@
 import {
-  Contraction, Indice, IndiceDrawable, LabelPos, Line, Pos, RelPos, Shape, Tensor, TensorOpts, XY,
+  Contraction, Indice, LabelPos, Line, Pos, RelPos, Shape, Tensor, TensorOpts, XY,
 } from './interfaces';
 
 const opposite = (pos: Pos): Pos => {
@@ -266,45 +266,10 @@ export default class TensorDiagramCore {
    * (Internal function)
    * @returns Loose indice lines.
    */
-  looseIndices(): IndiceDrawable[][] {
-    const shifts = {
-      up: [0.00, -0.75],
-      down: [0.00, 0.75],
-      left: [-0.75, 0.00],
-      right: [0.75, 0.00],
-    };
-
+  looseIndices(): Indice[][] {
     const contractedIndicesNames = this.contractions.map((contraction) => contraction.name);
 
     return this.tensors.map((tensor) => tensor.indices
-      .filter((indice) => !contractedIndicesNames.includes(indice.name))
-      .map((indice) => {
-        let shiftYRectDown = 0;
-
-        if (tensor.shape === 'rectangle' && indice.pos === 'down') {
-          shiftYRectDown = tensor.rectHeight - 1;
-        }
-
-        // get how much an indice should move to any cardinal point
-        const dv = shifts[indice.pos];
-
-        return {
-          pos: indice.pos,
-          name: indice.name,
-          showLabel: indice.showLabel,
-          source: {
-            x: 0,
-            y: indice.order,
-          },
-          target: {
-            x: dv[0],
-            y: dv[1] + indice.order + shiftYRectDown,
-          },
-          labelPosition: {
-            x: 1.4 * dv[0],
-            y: 1.4 * dv[1] + indice.order + shiftYRectDown,
-          },
-        };
-      }));
+      .filter((indice) => !contractedIndicesNames.includes(indice.name)));
   }
 }

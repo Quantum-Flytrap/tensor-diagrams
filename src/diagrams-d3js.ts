@@ -4,8 +4,23 @@ import * as d3 from 'd3';
 import TensorDiagramCore from './diagrams';
 import drawShape from './shapes-d3js';
 import {
-  Tensor, Contraction, Line, XY, LabelPos,
+  Tensor, Contraction, Line, XY, LabelPos, Pos,
 } from './interfaces';
+
+const posToShift = (pos: Pos): XY => {
+  switch (pos) {
+    case 'left':
+      return { x: -1, y: 0 };
+    case 'right':
+      return { x: 1, y: 0 };
+    case 'up':
+      return { x: 0, y: 1 };
+    case 'down':
+      return { x: 0, y: -1 };
+    default:
+      return { x: 0, y: 0 };
+  }
+};
 
 export default class TensorDiagram extends TensorDiagramCore {
   colorScale = d3.scaleOrdinal<string, string, never>();
@@ -186,7 +201,14 @@ export default class TensorDiagram extends TensorDiagramCore {
       .enter()
       .append('path')
       .attr('class', 'contraction')
-      .attr('d', (indice) => lineFunction([indice.source, indice.target]));
+      .attr('d', (indice) => {
+        const lineDir = posToShift(indice.pos);
+        const lineX = xScale(0.75 * lineDir.x);
+        const lineY = yScale(0.75 * lineDir.y);
+        return `
+        M 0 ${yScale(indice.order)}
+        l ${lineX} ${lineY}`;
+      });
 
     // loose indice labels
     tensorG.selectAll('.contraction-label')
@@ -194,8 +216,8 @@ export default class TensorDiagram extends TensorDiagramCore {
       .enter()
       .append('text')
       .attr('class', 'contraction-label')
-      .attr('x', (indice) => xScale(indice.labelPosition.x))
-      .attr('y', (indice) => yScale(indice.labelPosition.y))
+      .attr('x', (indice) => xScale(posToShift(indice.pos).x))
+      .attr('y', (indice) => yScale(posToShift(indice.pos).y + indice.order))
       .text((indice) => (indice.showLabel ? indice.name : ''));
 
     // tensorG
