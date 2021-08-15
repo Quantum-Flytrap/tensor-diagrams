@@ -293,16 +293,16 @@ export default class TensorDiagramCore {
           name: indice.name,
           showLabel: indice.showLabel,
           source: {
-            x: tensor.x,
-            y: tensor.y + indice.order,
+            x: 0,
+            y: indice.order,
           },
           target: {
-            x: tensor.x + dv[0],
-            y: tensor.y + dv[1] + indice.order + shiftYRectDown,
+            x: dv[0],
+            y: dv[1] + indice.order + shiftYRectDown,
           },
           labelPosition: {
-            x: tensor.x + 1.4 * dv[0],
-            y: tensor.y + 1.4 * dv[1] + indice.order + shiftYRectDown,
+            x: 1.4 * dv[0],
+            y: 1.4 * dv[1] + indice.order + shiftYRectDown,
           },
         };
       }));

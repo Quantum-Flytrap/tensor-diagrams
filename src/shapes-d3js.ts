@@ -8,14 +8,12 @@ import { Tensor } from './interfaces';
   * @param selected - represents the element within the svg figure to which the shape generated in this
   *     function will be added.
   * @param d - tensor object, contains all the characteristics of the tensor to be drawn.
-  * @param xScale - callback that scales linearly on the x-axis.
   * @param yScale - callback that scales linearly on the y-axis.
   * @returns returns the generated shape so that it can be manipulated such as setting its fill color.
   */
 export default function drawShape(
   element: SVGGElement,
   tensor: Tensor,
-  xScale: d3.ScaleLinear<number, number, never>,
   yScale: d3.ScaleLinear<number, number, never>,
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): d3.Selection<any, Tensor, null, undefined> {
@@ -38,8 +36,8 @@ export default function drawShape(
     return selected
       .append('circle')
       .attr('r', tensor.shape === 'dot' ? radius / 2 : radius)
-      .attr('cx', (d) => xScale(d.x))
-      .attr('cy', (d) => yScale(d.y));
+      .attr('cx', 0)
+      .attr('cy', 0);
   }
 
   /**
@@ -49,18 +47,15 @@ export default function drawShape(
   function drawAsterisk() {
     return selected
       .append('path')
-      .attr('d', (d) => {
-        const sx = xScale(d.x);
-        const sy = yScale(d.y);
-        return ` M ${sx - diagonalRadius} ${sy - diagonalRadius
-        } L ${sx + diagonalRadius} ${sy + diagonalRadius
-        } M ${sx + diagonalRadius} ${sy - diagonalRadius
-        } L ${sx - diagonalRadius} ${sy + diagonalRadius
-        } M ${sx} ${sy - radius
-        } L ${sx} ${sy + radius
-        } M ${sx + radius} ${sy
-        } L ${sx - radius} ${sy}`;
-      });
+      .attr('d', `
+      M ${-diagonalRadius} ${-diagonalRadius}
+      L ${+diagonalRadius} ${+diagonalRadius}
+      M ${+diagonalRadius} ${-diagonalRadius}
+      L ${-diagonalRadius} ${+diagonalRadius}
+      M 0 ${-radius}
+      L 0 ${+radius}
+      M ${+radius} 0
+      L ${-radius} 0`);
   }
 
   /**
@@ -72,8 +67,8 @@ export default function drawShape(
       .append('rect')
       .attr('width', size)
       .attr('height', size)
-      .attr('x', (d) => xScale(d.x) - radius)
-      .attr('y', (d) => yScale(d.y) - radius);
+      .attr('x', -radius)
+      .attr('y', -radius);
   }
 
   /**
@@ -83,13 +78,13 @@ export default function drawShape(
   function drawTriangleUp() {
     return selected
       .append('path')
-      .attr('d', (d) => {
-        const sx = xScale(d.x) - radius;
-        const sy = yScale(d.y) + radius;
-        return ` M ${sx} ${sy
-        } L ${sx + size} ${sy
-        } L ${sx + radius} ${sy - size
-        } z `;
+      .attr('d', () => {
+        const sx = -radius;
+        const sy = +radius;
+        return `
+        M ${sx} ${sy}
+        L ${sx + size} ${sy}
+        L ${sx + radius} ${sy - size} z`;
       });
   }
 
@@ -100,13 +95,13 @@ export default function drawShape(
   function drawTriangleDown() {
     return selected
       .append('path')
-      .attr('d', (d) => {
-        const sx = xScale(d.x) - radius;
-        const sy = yScale(d.y) - radius;
-        return ` M ${sx} ${sy
-        } L ${sx + size} ${sy
-        } L ${sx + radius} ${sy + size
-        } z `;
+      .attr('d', () => {
+        const sx = -radius;
+        const sy = -radius;
+        return `
+        M ${sx} ${sy}
+        L ${sx + size} ${sy}
+        L ${sx + radius} ${sy + size} z`;
       });
   }
 
@@ -117,13 +112,13 @@ export default function drawShape(
   function drawTriangleLeft() {
     return selected
       .append('path')
-      .attr('d', (d) => {
-        const sx = xScale(d.x) - radius;
-        const sy = yScale(d.y);
-        return ` M ${sx} ${sy
-        } L ${sx + size} ${sy + radius
-        } L ${sx + size} ${sy - radius
-        } z `;
+      .attr('d', () => {
+        const sx = -radius;
+        return `
+        M ${sx} 0
+        L ${sx + size} ${radius}
+        L ${sx + size} ${-radius}
+        z`;
       });
   }
 
@@ -134,12 +129,13 @@ export default function drawShape(
   function drawTriangleRight() {
     return selected
       .append('path')
-      .attr('d', (d) => {
-        const sx = xScale(d.x) - radius;
-        const sy = yScale(d.y) - radius;
-        return ` M ${sx} ${sy
-        } L ${sx} ${sy + size
-        } L ${sx + size} ${sy + radius} z`;
+      .attr('d', () => {
+        const sx = -radius;
+        const sy = -radius;
+        return `
+        M ${sx} ${sy}
+        L ${sx} ${sy + size}
+        L ${sx + size} ${sy + radius} z`;
       });
   }
 
@@ -152,9 +148,9 @@ export default function drawShape(
     return selected
       .append('rect')
       .attr('width', size)
-      .attr('height', (d) => yScale(d.rectHeight - 2) + (radius * 1.5))
-      .attr('x', (d) => xScale(d.x) - radius)
-      .attr('y', (d) => yScale(d.y) - radius)
+      .attr('height', (d) => yScale(d.rectHeight - 1) + (radius * 1.5))
+      .attr('x', -radius)
+      .attr('y', -radius)
       .attr('rx', diagonalRadius)
       .attr('ry', diagonalRadius);
   }

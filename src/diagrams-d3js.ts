@@ -12,11 +12,11 @@ export default class TensorDiagram extends TensorDiagramCore {
 
   xScale = d3.scaleLinear()
     .domain([0, 8])
-    .range([20, 500]);
+    .range([0, 500]);
 
   yScale = d3.scaleLinear()
     .domain([0, 8])
-    .range([60, 500]);
+    .range([0, 500]);
 
   constructor(tensors: Tensor[], contractions: Contraction[], lines: Line[]) {
     super(tensors, contractions, lines);
@@ -95,7 +95,9 @@ export default class TensorDiagram extends TensorDiagramCore {
     const svg = div.select('.eq-diagram')
       .append('svg')
       .attr('width', this.width)
-      .attr('height', this.height);
+      .attr('height', this.height)
+      .append('g')
+      .attr('transform', 'translate(20, 50)');
 
     // draw non-connected lines
     svg.selectAll('.contraction')
@@ -174,7 +176,8 @@ export default class TensorDiagram extends TensorDiagramCore {
       .data(tensors)
       .enter()
       .append('g')
-      .attr('class', 'tensor-group');
+      .attr('class', 'tensor-group')
+      .attr('transform', (d) => `translate(${xScale(d.x)},${yScale(d.y)})`);
 
     // loose indice lines
     const looseIndices = this.looseIndices();
@@ -202,7 +205,7 @@ export default class TensorDiagram extends TensorDiagramCore {
     tensorG
       // eslint-disable-next-line func-names
       .each(function (tensor) {
-        const shape = drawShape(this, tensor, xScale, yScale);
+        const shape = drawShape(this, tensor, yScale);
         shape.attr('class', 'tensor')
           .style('fill', (c) => c.color || colorScale(c.name))
           .on('mouseover', (_event, c) => {
@@ -228,21 +231,21 @@ export default class TensorDiagram extends TensorDiagramCore {
           'up right': 0.4,
           'down right': 0.4,
         };
-        return xScale(tensor.x + shiftX[tensor.labPos]);
+        return xScale(shiftX[tensor.labPos]);
       })
       .attr('y', (tensor) => {
         const shiftY: Record<LabelPos, number> = {
-          left: 0.14,
-          right: 0.14,
+          left: 0,
+          right: 0,
           up: -0.4,
-          down: 0.6,
-          center: 0.1,
+          down: 0.4,
+          center: 0,
           'up left': -0.4,
-          'down left': 0.6,
+          'down left': 0.4,
           'up right': -0.4,
-          'down right': 0.6,
+          'down right': 0.4,
         };
-        return yScale(tensor.y + shiftY[tensor.labPos]);
+        return yScale(shiftY[tensor.labPos]);
       })
       .text((tensor) => (tensor.showLabel ? tensor.name : ''));
   }
