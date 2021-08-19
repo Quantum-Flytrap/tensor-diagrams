@@ -27,7 +27,7 @@ Created using a NPM TypeScript frontend boilerplate [metachris/typescript-boiler
 
 ```bash
 # Clone the repository
-git clone https://github.com/Quantum-Flytrap/tensor-diagrams
+git clone git@github.com:Quantum-Flytrap/tensor-diagrams.git
 cd tensor-diagrams
 
 # Install dependencies
