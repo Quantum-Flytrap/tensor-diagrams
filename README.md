@@ -9,6 +9,8 @@ A package for creating visual tensor diagrams using [Penrose graphical notation]
 
 A simple live version: https://jsfiddle.net/stared/60ndm3co/.
 
+A work-in-progress article about Tensor Diagrams in Deep Learning, <https://p.migdal.pl/art-tensor-diagrams/> and its source <https://github.com/stared/art-tensor-diagrams>.
+
 Inspirations include:
 
 * [tensornetwork.org/diagrams](http://tensornetwork.org/diagrams/)
